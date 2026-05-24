@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet
+  View, Text, FlatList, TouchableOpacity, StyleSheet, Animated
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
@@ -23,6 +24,11 @@ interface WorkspaceItem {
   due_date?: string | null;
 }
 
+const ACTION_BUTTONS = [
+  { key: 'task', icon: 'checkbox-outline' as const, label: 'Task', color: '#007AFF' },
+  { key: 'note', icon: 'document-text-outline' as const, label: 'Note', color: '#34C759' },
+];
+
 export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenProps) {
   const { groupId, groupTitle } = route.params;
   const { db } = useDatabase();
@@ -31,6 +37,29 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
   const [calculatedStatus, setCalculatedStatus] = useState('');
   const [progress, setProgress] = useState(0);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<WorkspaceItem | null>(null);
+  const [showFabMenu, setShowFabMenu] = useState(false);
+  const fabAnim = useRef(new Animated.Value(0)).current;
+
+  const toggleFabMenu = () => {
+    const toValue = showFabMenu ? 0 : 1;
+    if (!showFabMenu) setShowFabMenu(true);
+    Animated.timing(fabAnim, {
+      toValue,
+      duration: 200,
+      easing: (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t,
+      useNativeDriver: true,
+    }).start(() => {
+      if (toValue === 0) setShowFabMenu(false);
+    });
+  };
+
+  const handleFabAction = (key: string) => {
+    setShowFabMenu(false);
+    switch (key) {
+      case 'task': navigation.navigate('TaskForm', { defaultGroupId: groupId }); break;
+      case 'note': navigation.navigate('NoteForm', { defaultGroupId: groupId }); break;
+    }
+  };
 
   const handleView = (item: WorkspaceItem) => {
     if (item.type === 'task') {
@@ -164,12 +193,23 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
         showsVerticalScrollIndicator={false}
       />
 
-      <View style={[styles.bottomDock, { paddingBottom: insets.bottom + 12 }]}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('TaskForm', { defaultGroupId: groupId })}>
-          <Text style={styles.actionButtonText}>+ Add Task</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, styles.noteButton]} onPress={() => navigation.navigate('NoteForm', { defaultGroupId: groupId })}>
-          <Text style={styles.actionButtonText}>+ Add Note</Text>
+      {showFabMenu && (
+        <TouchableOpacity style={styles.fabOverlay} activeOpacity={1} onPress={toggleFabMenu} />
+      )}
+
+      <View style={[styles.fabContainer, { bottom: insets.bottom + 16 }]}>
+        {showFabMenu && (
+          <Animated.View style={[styles.fabMenu, { opacity: fabAnim, transform: [{ translateY: fabAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
+            {ACTION_BUTTONS.map((btn) => (
+              <TouchableOpacity key={btn.key} style={[styles.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
+                <Ionicons name={btn.icon} size={20} color="#fff" />
+                <Text style={styles.fabMenuLabel}>{btn.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        )}
+        <TouchableOpacity style={styles.fab} onPress={toggleFabMenu}>
+          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -193,12 +233,14 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '700', color: '#1c1c1e', marginBottom: 4 },
   statusText: { fontSize: 14, color: '#8E8E93', fontWeight: '500' },
   listContent: { paddingVertical: 12, paddingBottom: 100 },
-  bottomDock: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12,
-    backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#e5e5ea', gap: 12,
+  fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },
+  fabContainer: { position: 'absolute', right: 16, alignItems: 'flex-end', zIndex: 9 },
+  fabMenu: { marginBottom: 12, gap: 10 },
+  fabMenuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, gap: 8 },
+  fabMenuLabel: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  fab: {
+    width: 56, height: 56, borderRadius: 28, backgroundColor: '#007AFF',
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6,
   },
-  actionButton: { flex: 1, backgroundColor: '#007AFF', borderRadius: 12, padding: 16, alignItems: 'center' },
-  noteButton: { backgroundColor: '#34C759' },
-  actionButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
