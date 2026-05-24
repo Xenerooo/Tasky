@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, SectionList, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTimeline, type TimelineEvent, type TimelineSection } from '../hooks/useTimeline';
 import TimelineCard from '../components/TimelineCard';
 import { useDatabase } from '../hooks/useDatabase';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface TimelineScreenProps {
   navigation: any;
@@ -12,6 +13,8 @@ interface TimelineScreenProps {
 export default function TimelineScreen({ navigation }: TimelineScreenProps) {
   const { sections, search, setSearch, filter, setFilter, refresh } = useTimeline();
   const { db } = useDatabase();
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
 
   const [groupTitles, setGroupTitles] = React.useState<Record<string, string>>({});
 
@@ -42,9 +45,9 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
   };
 
   const renderSectionHeader = ({ section }: { section: TimelineSection }) => (
-    <View style={styles.sectionHeader}>
-      <View style={styles.sectionLine} />
-      <Text style={styles.sectionTitle}>{section.title}</Text>
+    <View style={s.sectionHeader}>
+      <View style={s.sectionLine} />
+      <Text style={s.sectionTitle}>{section.title}</Text>
     </View>
   );
 
@@ -58,26 +61,26 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.topBar}>
-        <Text style={styles.headerTitle}>Timeline</Text>
+    <SafeAreaView style={s.container} edges={['top']}>
+      <View style={s.topBar}>
+        <Text style={s.headerTitle}>Timeline</Text>
       </View>
 
       <TextInput
-        style={styles.searchInput}
+        style={s.searchInput}
         placeholder="Search timeline or group..."
         value={search}
         onChangeText={setSearch}
       />
 
-      <View style={styles.filterRow}>
+      <View style={s.filterRow}>
         {filters.map(f => (
           <TouchableOpacity
             key={f.key}
-            style={[styles.filterPill, filter === f.key && styles.filterPillActive]}
+            style={[s.filterPill, filter === f.key && s.filterPillActive]}
             onPress={() => setFilter(f.key)}
           >
-            <Text style={[styles.filterPillText, filter === f.key && styles.filterPillTextActive]}>
+            <Text style={[s.filterPillText, filter === f.key && s.filterPillTextActive]}>
               {f.label}
             </Text>
           </TouchableOpacity>
@@ -89,22 +92,22 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
         keyExtractor={(item, index) => `${item.item_id}-${item.event_type}-${index}`}
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         onRefresh={refresh}
         refreshing={false}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No timeline events found</Text>
+          <Text style={s.emptyText}>No timeline events found</Text>
         }
       />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (c: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f7',
+    backgroundColor: c.screenBackground,
   },
   topBar: {
     paddingHorizontal: 16,
@@ -113,17 +116,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
   searchInput: {
     marginHorizontal: 16,
     marginBottom: 8,
     padding: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 10,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e5e5ea',
+    borderColor: c.borderSeparator,
   },
   filterRow: {
     flexDirection: 'row',
@@ -135,21 +138,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#e5e5ea',
+    borderColor: c.borderSeparator,
   },
   filterPillActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: c.primary,
+    borderColor: c.primary,
   },
   filterPillText: {
     fontSize: 14,
-    color: '#1c1c1e',
+    color: c.textPrimary,
     fontWeight: '500',
   },
   filterPillTextActive: {
-    color: '#fff',
+    color: c.textOnColor,
   },
   listContent: {
     paddingBottom: 20,
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
   sectionLine: {
     width: 2,
     height: 16,
-    backgroundColor: '#d9d9d9',
+    backgroundColor: c.border,
     marginRight: 10,
     marginLeft: 13,
     borderRadius: 1,
@@ -172,13 +175,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: c.textTertiary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#8E8E93',
+    color: c.textTertiary,
     fontSize: 15,
     fontStyle: 'italic',
     marginTop: 40,

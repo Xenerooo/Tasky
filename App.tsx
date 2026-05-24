@@ -6,7 +6,8 @@ import { DatabaseProvider, useDatabase } from './src/hooks/useDatabase';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
 import { initializeNotifications, updateNotificationChannel } from './src/services/notifications';
-import { useSettings } from './src/hooks/useSettings';
+import { SettingsProvider, useSettings } from './src/hooks/useSettings';
+import { ThemeProvider } from './src/theme/ThemeContext';
 import * as Notifications from 'expo-notifications';
 
 function AppContent() {
@@ -72,7 +73,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <DatabaseProvider>
-        <AppContent />
+        <SettingsProvider>
+          <ThemeProvider>
+            <AppContent />
+          </ThemeProvider>
+        </SettingsProvider>
       </DatabaseProvider>
     </SafeAreaProvider>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import NoteFormScreen from '../screens/NoteFormScreen';
 import InboxScreen from '../screens/InboxScreen';
 import NoteDetailScreen from '../screens/NoteDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import { useTheme } from '../theme/ThemeContext';
 
 type RootStackParamList = {
   MainTabs: undefined;
@@ -28,18 +29,19 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  const { colors } = useTheme();
+  const screenOptions = useMemo(() => ({
+    headerShown: false,
+    tabBarActiveTintColor: colors.tabActive,
+    tabBarInactiveTintColor: colors.tabInactive,
+    tabBarStyle: {
+      backgroundColor: colors.tabBackground,
+      borderTopColor: colors.tabBorder,
+    },
+  }), [colors]);
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#e5e5ea',
-        },
-      }}
-    >
+    <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen
         name="Home"
         component={DashboardScreen}

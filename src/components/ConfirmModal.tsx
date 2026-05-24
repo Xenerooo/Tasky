@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface ConfirmModalProps {
   visible: boolean;
@@ -22,21 +23,23 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <View style={styles.overlay}>
-        <View style={styles.content}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-          <View style={styles.buttons}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>{cancelLabel}</Text>
+      <View style={s.overlay}>
+        <View style={s.content}>
+          <Text style={s.title}>{title}</Text>
+          <Text style={s.message}>{message}</Text>
+          <View style={s.buttons}>
+            <TouchableOpacity style={s.cancelBtn} onPress={onCancel}>
+              <Text style={s.cancelText}>{cancelLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.confirmBtn, destructive && styles.confirmBtnDestructive]}
+              style={[s.confirmBtn, destructive && s.confirmBtnDestructive]}
               onPress={onConfirm}
             >
-              <Text style={styles.confirmText}>{confirmLabel}</Text>
+              <Text style={s.confirmText}>{confirmLabel}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -45,15 +48,15 @@ export default function ConfirmModal({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (c: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: c.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 16,
     padding: 24,
     width: '80%',
@@ -62,12 +65,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1c1c1e',
+    color: c.textPrimary,
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: '#3a3a3c',
+    color: c.textBody,
     lineHeight: 20,
     marginBottom: 20,
   },
@@ -79,27 +82,27 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: '#f2f2f7',
+    backgroundColor: c.screenBackground,
     alignItems: 'center',
   },
   cancelText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: c.textTertiary,
   },
   confirmBtn: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: '#007AFF',
+    backgroundColor: c.primary,
     alignItems: 'center',
   },
   confirmBtnDestructive: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: c.danger,
   },
   confirmText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#fff',
+    color: c.textOnColor,
   },
 });

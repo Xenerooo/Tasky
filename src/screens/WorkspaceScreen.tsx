@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet, Animated
 } from 'react-native';
@@ -9,6 +9,7 @@ import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
 import type { InboxTask, NoteData } from '../hooks/useGroupedTasks';
 import { cancelForTask } from '../services/notifications';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface WorkspaceScreenProps {
   navigation: any;
@@ -25,12 +26,13 @@ interface WorkspaceItem {
   due_date?: string | null;
 }
 
-const ACTION_BUTTONS = [
-  { key: 'task', icon: 'checkbox-outline' as const, label: 'Task', color: '#007AFF' },
-  { key: 'note', icon: 'document-text-outline' as const, label: 'Note', color: '#34C759' },
-];
-
 export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenProps) {
+  const { colors } = useTheme();
+  const ACTION_BUTTONS = [
+    { key: 'task' as const, icon: 'checkbox-outline' as const, label: 'Task', color: colors.primary },
+    { key: 'note' as const, icon: 'document-text-outline' as const, label: 'Note', color: colors.success },
+  ];
+  const s = useMemo(() => styles(colors), [colors]);
   const { groupId, groupTitle } = route.params;
   const { db } = useDatabase();
   const insets = useSafeAreaInsets();
@@ -174,10 +176,10 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
     : `${calculatedStatus}${calculatedStatus === 'Ongoing' ? ` (${progress}%)` : ''}`;
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{groupTitle}</Text>
-        <Text style={styles.statusText}>{progressDisplay}</Text>
+    <SafeAreaView style={s.container} edges={['bottom']}>
+      <View style={s.header}>
+        <Text style={s.title}>{groupTitle}</Text>
+        <Text style={s.statusText}>{progressDisplay}</Text>
       </View>
 
       <FlatList
@@ -199,27 +201,27 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
             onDelete={() => handleDeleteItem(item)}
           />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
       />
 
       {showFabMenu && (
-        <TouchableOpacity style={styles.fabOverlay} activeOpacity={1} onPress={toggleFabMenu} />
+        <TouchableOpacity style={s.fabOverlay} activeOpacity={1} onPress={toggleFabMenu} />
       )}
 
-      <View style={[styles.fabContainer, { bottom: insets.bottom + 16 }]}>
+      <View style={[s.fabContainer, { bottom: insets.bottom + 16 }]}>
         {showFabMenu && (
-          <Animated.View style={[styles.fabMenu, { opacity: fabAnim, transform: [{ translateY: fabAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
+          <Animated.View style={[s.fabMenu, { opacity: fabAnim, transform: [{ translateY: fabAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
             {ACTION_BUTTONS.map((btn) => (
-              <TouchableOpacity key={btn.key} style={[styles.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
-                <Ionicons name={btn.icon} size={20} color="#fff" />
-                <Text style={styles.fabMenuLabel}>{btn.label}</Text>
+              <TouchableOpacity key={btn.key} style={[s.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
+                <Ionicons name={btn.icon} size={20} color={colors.badgeText} />
+                <Text style={s.fabMenuLabel}>{btn.label}</Text>
               </TouchableOpacity>
             ))}
           </Animated.View>
         )}
-        <TouchableOpacity style={styles.fab} onPress={toggleFabMenu}>
-          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color="#fff" />
+        <TouchableOpacity style={s.fab} onPress={toggleFabMenu}>
+          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color={colors.badgeText} />
         </TouchableOpacity>
       </View>
 
@@ -234,23 +236,23 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+const styles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.screenBackground },
   header: {
-    backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: '#e5e5ea',
+    backgroundColor: c.surface, paddingHorizontal: 16, paddingVertical: 14,
+    borderBottomWidth: 1, borderBottomColor: c.borderSeparator,
   },
-  title: { fontSize: 22, fontWeight: '700', color: '#1c1c1e', marginBottom: 4 },
-  statusText: { fontSize: 14, color: '#8E8E93', fontWeight: '500' },
+  title: { fontSize: 22, fontWeight: '700', color: c.textPrimary, marginBottom: 4 },
+  statusText: { fontSize: 14, color: c.textTertiary, fontWeight: '500' },
   listContent: { paddingVertical: 12, paddingBottom: 100 },
   fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },
   fabContainer: { position: 'absolute', right: 16, alignItems: 'flex-end', zIndex: 9 },
   fabMenu: { marginBottom: 12, gap: 10 },
   fabMenuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, gap: 8 },
-  fabMenuLabel: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  fabMenuLabel: { color: c.badgeText, fontSize: 15, fontWeight: '600' },
   fab: {
-    width: 56, height: 56, borderRadius: 28, backgroundColor: '#007AFF',
+    width: 56, height: 56, borderRadius: 28, backgroundColor: c.primary,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6,
+    shadowColor: c.shadow, shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6,
   },
 });

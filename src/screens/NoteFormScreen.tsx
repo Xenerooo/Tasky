@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import { useDatabase } from '../hooks/useDatabase';
 import type { GroupedTask, NoteData } from '../hooks/useGroupedTasks';
 
@@ -19,6 +20,8 @@ interface NoteFormScreenProps {
 export default function NoteFormScreen({ navigation, route }: NoteFormScreenProps) {
   const editNote = route.params?.editNote ?? null;
   const defaultGroupId = route.params?.defaultGroupId ?? null;
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   const { db } = useDatabase();
   const [content, setContent] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(defaultGroupId);
@@ -66,42 +69,42 @@ export default function NoteFormScreen({ navigation, route }: NoteFormScreenProp
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <SafeAreaView style={s.container} edges={['bottom']}>
+      <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
         <TextInput
           ref={contentRef}
-          style={[styles.input, styles.textArea]}
+          style={[s.input, s.textArea]}
           placeholder="Type your note here..."
           value={content}
           onChangeText={setContent}
           multiline
         />
 
-        <TouchableOpacity style={styles.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
-          <Text style={[styles.pickerButtonText, !selectedGroupId && styles.placeholderText]}>
+        <TouchableOpacity style={s.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
+          <Text style={[s.pickerButtonText, !selectedGroupId && s.placeholderText]}>
             {selectedGroupId
               ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
               : 'None (Unassigned)'}
           </Text>
-          <Text style={styles.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
+          <Text style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
         </TouchableOpacity>
         {showGroupPicker && (
-          <View style={styles.pickerDropdown}>
+          <View style={s.pickerDropdown}>
             <TouchableOpacity
-              style={styles.pickerOption}
+              style={s.pickerOption}
               onPress={() => { setSelectedGroupId(null); setShowGroupPicker(false); }}
             >
-              <Text style={selectedGroupId === null ? styles.pickerOptionActive : styles.pickerOptionText}>
+              <Text style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
                 None (Unassigned)
               </Text>
             </TouchableOpacity>
             {groups.map(g => (
               <TouchableOpacity
                 key={g.id}
-                style={styles.pickerOption}
+                style={s.pickerOption}
                 onPress={() => { setSelectedGroupId(g.id); setShowGroupPicker(false); }}
               >
-                <Text style={selectedGroupId === g.id ? styles.pickerOptionActive : styles.pickerOptionText}>
+                <Text style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
                   {g.title}
                 </Text>
               </TouchableOpacity>
@@ -109,33 +112,33 @@ export default function NoteFormScreen({ navigation, route }: NoteFormScreenProp
           </View>
         )}
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>{isEditing ? 'Update Note' : 'Save Note'}</Text>
+        <TouchableOpacity style={s.saveButton} onPress={handleSave}>
+          <Text style={s.saveButtonText}>{isEditing ? 'Update Note' : 'Save Note'}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+const styles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.screenBackground },
   content: { padding: 20, paddingBottom: 40 },
   input: {
-    borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 14, fontSize: 16,
-    backgroundColor: '#fff', marginBottom: 12,
+    borderWidth: 1, borderColor: c.border, borderRadius: 10, padding: 14, fontSize: 16,
+    backgroundColor: c.surface, marginBottom: 12,
   },
   textArea: { minHeight: 250, maxHeight: 500, textAlignVertical: 'top' },
   pickerButton: {
-    borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 14, marginBottom: 12,
-    backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    borderWidth: 1, borderColor: c.border, borderRadius: 10, padding: 14, marginBottom: 12,
+    backgroundColor: c.surface, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
   },
-  pickerButtonText: { fontSize: 16, color: '#333', flex: 1 },
-  placeholderText: { color: '#aaa' },
-  pickerArrow: { fontSize: 12, color: '#999' },
-  pickerDropdown: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, marginBottom: 12, overflow: 'hidden', backgroundColor: '#fff' },
-  pickerOption: { padding: 14, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  pickerOptionText: { fontSize: 16, color: '#333' },
-  pickerOptionActive: { fontSize: 16, color: '#007AFF', fontWeight: '600' },
-  saveButton: { backgroundColor: '#007AFF', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 8 },
-  saveButtonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
+  pickerButtonText: { fontSize: 16, color: c.textSecondary, flex: 1 },
+  placeholderText: { color: c.textPlaceholder },
+  pickerArrow: { fontSize: 12, color: c.textHint },
+  pickerDropdown: { borderWidth: 1, borderColor: c.border, borderRadius: 10, marginBottom: 12, overflow: 'hidden', backgroundColor: c.surface },
+  pickerOption: { padding: 14, borderBottomWidth: 1, borderBottomColor: c.borderDivider },
+  pickerOptionText: { fontSize: 16, color: c.textSecondary },
+  pickerOptionActive: { fontSize: 16, color: c.primary, fontWeight: '600' },
+  saveButton: { backgroundColor: c.primary, borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 8 },
+  saveButtonText: { color: c.textOnColor, fontSize: 17, fontWeight: '600' },
 });

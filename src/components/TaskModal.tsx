@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView
 } from 'react-native';
@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDatabase } from '../hooks/useDatabase';
 import { useSettings } from '../hooks/useSettings';
 import DatePickerModal from './DatePickerModal';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import type { GroupedTask, InboxTask } from '../hooks/useGroupedTasks';
 import { scheduleForTask, cancelForTask } from '../services/notifications';
 
@@ -19,6 +20,8 @@ interface TaskModalProps {
 }
 
 export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, editTask, viewOnly }: TaskModalProps) {
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   const { db } = useDatabase();
   const { settings } = useSettings();
   const [title, setTitle] = useState('');
@@ -110,15 +113,15 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.overlay}>
-        <View style={styles.sheet}>
-          <View style={styles.handle} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.overlay}>
+        <View style={s.sheet}>
+          <View style={s.handle} />
           <ScrollView keyboardShouldPersistTaps="handled">
-            <Text style={styles.heading}>{viewOnly ? 'Task Details' : editTask ? 'Edit Task' : 'New Task'}</Text>
+            <Text style={s.heading}>{viewOnly ? 'Task Details' : editTask ? 'Edit Task' : 'New Task'}</Text>
 
             <TextInput
               ref={titleRef}
-              style={[styles.input, viewOnly && styles.inputReadOnly]}
+              style={[s.input, viewOnly && s.inputReadOnly]}
               placeholder="Task title (required)"
               value={title}
               onChangeText={setTitle}
@@ -126,7 +129,7 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
             />
 
             <TextInput
-              style={[styles.input, styles.textArea, viewOnly && styles.inputReadOnly]}
+              style={[s.input, s.textArea, viewOnly && s.inputReadOnly]}
               placeholder="Description (optional)"
               value={description}
               onChangeText={setDescription}
@@ -135,9 +138,9 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
             />
 
             {viewOnly ? (
-              <View style={styles.viewField}>
-                <Text style={styles.viewLabel}>Group</Text>
-                <Text style={styles.viewValue}>
+              <View style={s.viewField}>
+                <Text style={s.viewLabel}>Group</Text>
+                <Text style={s.viewValue}>
                   {selectedGroupId
                     ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
                     : 'None (Inbox)'}
@@ -145,31 +148,31 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
               </View>
             ) : (
               <>
-                <TouchableOpacity style={styles.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
-                  <Text style={styles.pickerButtonText}>
+                <TouchableOpacity style={s.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
+                  <Text style={s.pickerButtonText}>
                     {selectedGroupId
                       ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
                       : 'None (Inbox)'}
                   </Text>
-                  <Text style={styles.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
+                  <Text style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
                 </TouchableOpacity>
                 {showGroupPicker && (
-                  <View style={styles.pickerDropdown}>
+                  <View style={s.pickerDropdown}>
                     <TouchableOpacity
-                      style={styles.pickerOption}
+                      style={s.pickerOption}
                       onPress={() => { setSelectedGroupId(null); setShowGroupPicker(false); }}
                     >
-                      <Text style={selectedGroupId === null ? styles.pickerOptionActive : styles.pickerOptionText}>
+                      <Text style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
                         None (Inbox)
                       </Text>
                     </TouchableOpacity>
                     {groups.map(g => (
                       <TouchableOpacity
                         key={g.id}
-                        style={styles.pickerOption}
+                        style={s.pickerOption}
                         onPress={() => { setSelectedGroupId(g.id); setShowGroupPicker(false); }}
                       >
-                        <Text style={selectedGroupId === g.id ? styles.pickerOptionActive : styles.pickerOptionText}>
+                        <Text style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
                           {g.title}
                         </Text>
                       </TouchableOpacity>
@@ -180,23 +183,23 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
             )}
 
             {viewOnly ? (
-              <View style={styles.viewField}>
-                <Text style={styles.viewLabel}>Due Date</Text>
-                <Text style={styles.viewValue}>{dueDate || 'None'}</Text>
+              <View style={s.viewField}>
+                <Text style={s.viewLabel}>Due Date</Text>
+                <Text style={s.viewValue}>{dueDate || 'None'}</Text>
               </View>
             ) : (
               <View>
-                <TouchableOpacity style={styles.pickerButton} onPress={() => setShowDateModal(true)}>
-                  <Text style={[styles.pickerButtonText, !dueDate && styles.placeholderText]}>
+                <TouchableOpacity style={s.pickerButton} onPress={() => setShowDateModal(true)}>
+                  <Text style={[s.pickerButtonText, !dueDate && s.placeholderText]}>
                     {dueDate || 'Set due date (optional)'}
                   </Text>
-                  <View style={styles.dateBtnRow}>
+                  <View style={s.dateBtnRow}>
                     {dueDate ? (
                       <TouchableOpacity onPress={clearDueDate} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                        <Text style={styles.clearDateText}>✕</Text>
+                        <Text style={s.clearDateText}>✕</Text>
                       </TouchableOpacity>
                     ) : null}
-                    <Ionicons name="calendar-outline" size={20} color="#8E8E93" style={{ marginLeft: dueDate ? 8 : 0 }} />
+                    <Ionicons name="calendar-outline" size={20} color={colors.textTertiary} style={{ marginLeft: dueDate ? 8 : 0 }} />
                   </View>
                 </TouchableOpacity>
                 <DatePickerModal
@@ -208,33 +211,33 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
               </View>
             )}
 
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Status</Text>
+            <View style={s.statusRow}>
+              <Text style={s.statusLabel}>Status</Text>
               {viewOnly ? (
-                <View style={[styles.statusBadge, status === 'done' ? styles.statusDone : styles.statusOngoing]}>
-                  <Text style={styles.statusBadgeText}>{status === 'done' ? '✓ Done' : '○ Ongoing'}</Text>
+                <View style={[s.statusBadge, status === 'done' ? s.statusDone : s.statusOngoing]}>
+                  <Text style={s.statusBadgeText}>{status === 'done' ? '✓ Done' : '○ Ongoing'}</Text>
                 </View>
               ) : (
                 <TouchableOpacity
-                  style={[styles.statusBadge, status === 'done' ? styles.statusDone : styles.statusOngoing]}
+                  style={[s.statusBadge, status === 'done' ? s.statusDone : s.statusOngoing]}
                   onPress={toggleStatus}
                 >
-                  <Text style={styles.statusBadgeText}>{status === 'done' ? '✓ Done' : '○ Ongoing'}</Text>
+                  <Text style={s.statusBadgeText}>{status === 'done' ? '✓ Done' : '○ Ongoing'}</Text>
                 </TouchableOpacity>
               )}
             </View>
 
             {viewOnly ? (
-              <TouchableOpacity style={styles.saveButton} onPress={onClose}>
-                <Text style={styles.saveButtonText}>Close</Text>
+              <TouchableOpacity style={s.saveButton} onPress={onClose}>
+                <Text style={s.saveButtonText}>Close</Text>
               </TouchableOpacity>
             ) : (
               <>
-                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                  <Text style={styles.saveButtonText}>{editTask ? 'Update Task' : 'Save Task'}</Text>
+                <TouchableOpacity style={s.saveButton} onPress={handleSave}>
+                  <Text style={s.saveButtonText}>{editTask ? 'Update Task' : 'Save Task'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                <TouchableOpacity style={s.cancelButton} onPress={onClose}>
+                  <Text style={s.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -245,14 +248,14 @@ export default function TaskModal({ visible, onClose, onSaved, defaultGroupId, e
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (c: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: c.overlay,
   },
   sheet: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
@@ -262,7 +265,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#ccc',
+    backgroundColor: c.handle,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 10,
@@ -275,7 +278,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: c.border,
     borderRadius: 10,
     padding: 14,
     fontSize: 16,
@@ -288,7 +291,7 @@ const styles = StyleSheet.create({
   },
   pickerButton: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: c.border,
     borderRadius: 10,
     padding: 14,
     marginBottom: 12,
@@ -298,28 +301,28 @@ const styles = StyleSheet.create({
   },
   pickerButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: c.textSecondary,
     flex: 1,
   },
   placeholderText: {
-    color: '#aaa',
+    color: c.textPlaceholder,
   },
   dateBtnRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   clearDateText: {
-    color: '#FF3B30',
+    color: c.danger,
     fontSize: 16,
     fontWeight: '700',
   },
   pickerArrow: {
     fontSize: 12,
-    color: '#999',
+    color: c.textHint,
   },
   pickerDropdown: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: c.border,
     borderRadius: 10,
     marginBottom: 12,
     overflow: 'hidden',
@@ -327,26 +330,26 @@ const styles = StyleSheet.create({
   pickerOption: {
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.borderDivider,
   },
   pickerOptionText: {
     fontSize: 16,
-    color: '#333',
+    color: c.textSecondary,
   },
   pickerOptionActive: {
     fontSize: 16,
-    color: '#007AFF',
+    color: c.primary,
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: c.primary,
     borderRadius: 10,
     padding: 16,
     alignItems: 'center',
     marginTop: 8,
   },
   saveButtonText: {
-    color: '#fff',
+    color: c.textOnColor,
     fontSize: 17,
     fontWeight: '600',
   },
@@ -356,7 +359,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cancelButtonText: {
-    color: '#999',
+    color: c.textHint,
     fontSize: 16,
   },
   statusRow: {
@@ -368,7 +371,7 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     fontSize: 16,
-    color: '#333',
+    color: c.textSecondary,
     fontWeight: '500',
   },
   statusBadge: {
@@ -377,37 +380,37 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   statusDone: {
-    backgroundColor: '#34C759',
+    backgroundColor: c.success,
   },
   statusOngoing: {
-    backgroundColor: '#FF9500',
+    backgroundColor: c.warning,
   },
   statusBadgeText: {
-    color: '#fff',
+    color: c.textOnColor,
     fontSize: 14,
     fontWeight: '600',
   },
   inputReadOnly: {
-    backgroundColor: '#f8f8f8',
-    color: '#555',
+    backgroundColor: c.surfaceSecondary,
+    color: c.textDisabled,
   },
   viewField: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: c.border,
     borderRadius: 10,
     padding: 14,
     marginBottom: 12,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: c.surfaceSecondary,
   },
   viewLabel: {
     fontSize: 11,
-    color: '#8E8E93',
+    color: c.textTertiary,
     fontWeight: '600',
     textTransform: 'uppercase',
     marginBottom: 4,
   },
   viewValue: {
     fontSize: 16,
-    color: '#333',
+    color: c.textSecondary,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, Animated
 } from 'react-native';
@@ -9,18 +9,20 @@ import { useGroupedTasks, type GroupedTask, type InboxTask } from '../hooks/useG
 import GroupCard from '../components/GroupCard';
 import TaskModal from '../components/TaskModal';
 import ConfirmModal from '../components/ConfirmModal';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface DashboardScreenProps {
   navigation: any;
 }
 
-const ACTION_BUTTONS = [
-  { key: 'task', icon: 'checkbox-outline' as const, label: 'Task', color: '#007AFF' },
-  { key: 'note', icon: 'document-text-outline' as const, label: 'Note', color: '#34C759' },
-  { key: 'group', icon: 'folder-outline' as const, label: 'Group', color: '#FF9500' },
-];
-
 export default function DashboardScreen({ navigation }: DashboardScreenProps) {
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
+  const ACTION_BUTTONS = [
+    { key: 'task' as const, icon: 'checkbox-outline' as const, label: 'Task', color: colors.primary },
+    { key: 'note' as const, icon: 'document-text-outline' as const, label: 'Note', color: colors.success },
+    { key: 'group' as const, icon: 'folder-outline' as const, label: 'Group', color: colors.warning },
+  ];
   const { groups, inboxItems, search, setSearch, reassignTaskToGroup, createGroup, deleteTask, deleteNote, renameGroup, deleteGroup, refresh } = useGroupedTasks();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newGroupTitle, setNewGroupTitle] = useState('');
@@ -89,18 +91,18 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
 
   const renderHeader = () => (
     <View>
-      <View style={styles.inboxSection}>
-        <TouchableOpacity style={styles.sectionHeader} onPress={() => navigation.navigate('Inbox')}>
-          <Text style={styles.sectionTitle}>Tasks/Notes</Text>
-          <Text style={styles.seeAllText}>See all ›</Text>
+      <View style={s.inboxSection}>
+        <TouchableOpacity style={s.sectionHeader} onPress={() => navigation.navigate('Inbox')}>
+          <Text style={s.sectionTitle}>Tasks/Notes</Text>
+          <Text style={s.seeAllText}>See all ›</Text>
         </TouchableOpacity>
         {inboxItems.length === 0 ? (
-          <Text style={styles.emptyText}>No floating items</Text>
+          <Text style={s.emptyText}>No floating items</Text>
         ) : (
           inboxItems.map(item => (
             <TouchableOpacity
               key={`${item.id}-${item.type}`}
-              style={styles.inboxCard}
+              style={s.inboxCard}
               onPress={() => {
                 if (item.type === 'task') {
                   navigation.navigate('TaskDetail', { taskId: item.id });
@@ -109,50 +111,50 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 }
               }}
             >
-              <View style={styles.inboxLeft}>
+              <View style={s.inboxLeft}>
                 {item.type === 'task' ? (
                   <>
-                    <View style={styles.inboxTitleRow}>
-                      <View style={[styles.typeDot, { backgroundColor: '#007AFF' }]} />
-                      <Text style={styles.inboxTitle} numberOfLines={1}>{item.display_text}</Text>
+                    <View style={s.inboxTitleRow}>
+                      <View style={[s.typeDot, { backgroundColor: colors.primary }]} />
+                      <Text style={s.inboxTitle} numberOfLines={1}>{item.display_text}</Text>
                     </View>
                     {item.due_date && (
-                      <Text style={styles.inboxDue}>Due: {new Date(item.due_date).toLocaleDateString()}</Text>
+                      <Text style={s.inboxDue}>Due: {new Date(item.due_date).toLocaleDateString()}</Text>
                     )}
                   </>
                 ) : (
                   <>
-                    <View style={styles.inboxTitleRow}>
-                      <View style={[styles.typeDot, { backgroundColor: '#34C759' }]} />
-                      <Text style={styles.noteLabel}>Note</Text>
+                    <View style={s.inboxTitleRow}>
+                      <View style={[s.typeDot, { backgroundColor: colors.success }]} />
+                      <Text style={s.noteLabel}>Note</Text>
                     </View>
-                    <Text style={styles.notePreview} numberOfLines={2}>{item.display_text}</Text>
+                    <Text style={s.notePreview} numberOfLines={2}>{item.display_text}</Text>
                   </>
                 )}
               </View>
-              <Text style={styles.assignHint}>{item.type === 'task' ? 'Tap to assign' : 'Tap to view'}</Text>
+              <Text style={s.assignHint}>{item.type === 'task' ? 'Tap to assign' : 'Tap to view'}</Text>
             </TouchableOpacity>
           ))
         )}
       </View>
 
-      <View style={styles.groupsSection}>
-        <Text style={styles.sectionTitle}>Groups</Text>
+      <View style={s.groupsSection}>
+        <Text style={s.sectionTitle}>Groups</Text>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.topBar}>
-        <Text style={styles.headerTitle}>Tasky</Text>
+    <SafeAreaView style={s.container} edges={['top']}>
+      <View style={s.topBar}>
+        <Text style={s.headerTitle}>Tasky</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Ionicons name="settings-outline" size={24} color="#007AFF" />
+          <Ionicons name="settings-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
       <TextInput
-        style={styles.searchInput}
+        style={s.searchInput}
         placeholder="Search groups..."
         value={search}
         onChangeText={setSearch}
@@ -173,7 +175,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           />
         )}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         onRefresh={refresh}
         refreshing={false}
@@ -181,17 +183,17 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
 
       {showFabMenu && (
         <TouchableOpacity
-          style={styles.fabOverlay}
+          style={s.fabOverlay}
           activeOpacity={1}
           onPress={toggleFabMenu}
         />
       )}
 
-      <View style={styles.fabContainer}>
+      <View style={s.fabContainer}>
         {showFabMenu && (
           <Animated.View
             style={[
-              styles.fabMenu,
+              s.fabMenu,
               {
                 opacity: fabAnim,
                 transform: [{ translateY: fabAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
@@ -201,20 +203,20 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
             {ACTION_BUTTONS.map((btn) => (
               <TouchableOpacity
                 key={btn.key}
-                style={[styles.fabMenuItem, { backgroundColor: btn.color }]}
+                style={[s.fabMenuItem, { backgroundColor: btn.color }]}
                 onPress={() => handleFabAction(btn.key)}
               >
-                <Ionicons name={btn.icon} size={20} color="#fff" />
-                <Text style={styles.fabMenuLabel}>{btn.label}</Text>
+                <Ionicons name={btn.icon} size={20} color={colors.badgeText} />
+                <Text style={s.fabMenuLabel}>{btn.label}</Text>
               </TouchableOpacity>
             ))}
           </Animated.View>
         )}
         <TouchableOpacity
-          style={styles.fab}
+          style={s.fab}
           onPress={toggleFabMenu}
         >
-          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color="#fff" />
+          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color={colors.badgeText} />
         </TouchableOpacity>
       </View>
 
@@ -226,22 +228,22 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
       />
 
       <Modal visible={showCreateModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>New Group</Text>
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>New Group</Text>
             <TextInput
-              style={styles.modalInput}
+              style={s.modalInput}
               placeholder="Group title"
               value={newGroupTitle}
               onChangeText={setNewGroupTitle}
               autoFocus
             />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalCancel} onPress={() => setShowCreateModal(false)}>
-                <Text style={styles.modalCancelText}>Cancel</Text>
+            <View style={s.modalButtons}>
+              <TouchableOpacity style={s.modalCancel} onPress={() => setShowCreateModal(false)}>
+                <Text style={s.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalSave} onPress={handleCreateGroup}>
-                <Text style={styles.modalSaveText}>Create</Text>
+              <TouchableOpacity style={s.modalSave} onPress={handleCreateGroup}>
+                <Text style={s.modalSaveText}>Create</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -249,22 +251,22 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
       </Modal>
 
       <Modal visible={!!editingGroup} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Rename Group</Text>
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>Rename Group</Text>
             <TextInput
-              style={styles.modalInput}
+              style={s.modalInput}
               placeholder="Group title"
               value={editGroupTitle}
               onChangeText={setEditGroupTitle}
               autoFocus
             />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalCancel} onPress={() => { setEditingGroup(null); setEditGroupTitle(''); }}>
-                <Text style={styles.modalCancelText}>Cancel</Text>
+            <View style={s.modalButtons}>
+              <TouchableOpacity style={s.modalCancel} onPress={() => { setEditingGroup(null); setEditGroupTitle(''); }}>
+                <Text style={s.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalSave} onPress={handleEditGroup}>
-                <Text style={styles.modalSaveText}>Save</Text>
+              <TouchableOpacity style={s.modalSave} onPress={handleEditGroup}>
+                <Text style={s.modalSaveText}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -274,29 +276,29 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
       {/* Reassign Modal */}
       {assigningTaskId && (
         <Modal visible transparent animationType="fade">
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Move to Group</Text>
+          <View style={s.modalOverlay}>
+            <View style={s.modalContent}>
+              <Text style={s.modalTitle}>Move to Group</Text>
               <TouchableOpacity
-                style={styles.reassignOption}
+                style={s.reassignOption}
                 onPress={() => handleReassign(assigningTaskId, null as any)}
               >
-                <Text style={styles.reassignOptionText}>None (stay in Inbox)</Text>
+                <Text style={s.reassignOptionText}>None (stay in Inbox)</Text>
               </TouchableOpacity>
               {groups.map(group => (
                 <TouchableOpacity
                   key={group.id}
-                  style={styles.reassignOption}
+                  style={s.reassignOption}
                   onPress={() => handleReassign(assigningTaskId, group.id)}
                 >
-                  <Text style={styles.reassignOptionText}>{group.title}</Text>
+                  <Text style={s.reassignOptionText}>{group.title}</Text>
                 </TouchableOpacity>
               ))}
               <TouchableOpacity
-                style={[styles.modalCancel, { marginTop: 12 }]}
+                style={[s.modalCancel, { marginTop: 12 }]}
                 onPress={() => setAssigningTaskId(null)}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text style={s.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -319,10 +321,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (c: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f7',
+    backgroundColor: c.screenBackground,
   },
   topBar: {
     paddingHorizontal: 16,
@@ -334,17 +336,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
   searchInput: {
     marginHorizontal: 16,
     marginBottom: 8,
     padding: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 10,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e5e5ea',
+    borderColor: c.borderSeparator,
   },
   listContent: {
     paddingBottom: 100,
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -367,22 +369,22 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     fontSize: 14,
-    color: '#007AFF',
+    color: c.primary,
     fontWeight: '500',
   },
   emptyText: {
-    color: '#8E8E93',
+    color: c.textTertiary,
     fontSize: 15,
     fontStyle: 'italic',
   },
   inboxCard: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.04,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -405,30 +407,30 @@ const styles = StyleSheet.create({
   inboxTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#1c1c1e',
+    color: c.textPrimary,
     flex: 1,
   },
   noteLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#34C759',
+    color: c.success,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   notePreview: {
     fontSize: 15,
-    color: '#3a3a3c',
+    color: c.textBody,
     marginTop: 4,
     lineHeight: 20,
   },
   inboxDue: {
     fontSize: 12,
-    color: '#FF3B30',
+    color: c.danger,
     marginTop: 2,
   },
   assignHint: {
     fontSize: 12,
-    color: '#007AFF',
+    color: c.primary,
   },
   groupsSection: {
     paddingHorizontal: 16,
@@ -451,10 +453,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
+    backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOpacity: 0.2,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -473,18 +475,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   fabMenuLabel: {
-    color: '#fff',
+    color: c.badgeText,
     fontSize: 15,
     fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: c.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 16,
     padding: 20,
     width: '80%',
@@ -494,11 +496,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 14,
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: c.border,
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
@@ -513,27 +515,27 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   modalCancelText: {
-    color: '#8E8E93',
+    color: c.textTertiary,
     fontSize: 16,
   },
   modalSave: {
-    backgroundColor: '#007AFF',
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 10,
   },
   modalSaveText: {
-    color: '#fff',
+    color: c.badgeText,
     fontSize: 16,
     fontWeight: '600',
   },
   reassignOption: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.borderDivider,
   },
   reassignOptionText: {
     fontSize: 16,
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
 });

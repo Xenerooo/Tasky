@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useDatabase } from '../hooks/useDatabase';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import type { InboxTask } from '../hooks/useGroupedTasks';
 
 interface TaskDetailScreenProps {
@@ -12,6 +13,8 @@ interface TaskDetailScreenProps {
 export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
   const { taskId } = route.params;
   const { db } = useDatabase();
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   const [task, setTask] = useState<InboxTask | null>(null);
   const [loading, setLoading] = useState(true);
   const [groupTitle, setGroupTitle] = useState<string | null>(null);
@@ -37,16 +40,16 @@ export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 40 }} />
+      <SafeAreaView style={s.container}>
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
       </SafeAreaView>
     );
   }
 
   if (!task) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Task not found</Text>
+      <SafeAreaView style={s.container}>
+        <Text style={s.errorText}>Task not found</Text>
       </SafeAreaView>
     );
   }
@@ -61,44 +64,44 @@ export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.statusBar}>
-          <View style={[styles.statusBadge, isDone ? styles.statusDone : styles.statusOngoing]}>
-            <Ionicons name={isDone ? 'checkmark-circle' : 'time-outline'} size={16} color="#fff" />
-            <Text style={styles.statusText}>{isDone ? 'Done' : 'Ongoing'}</Text>
+    <SafeAreaView style={s.container} edges={['bottom']}>
+      <ScrollView contentContainerStyle={s.content}>
+        <View style={s.statusBar}>
+          <View style={[s.statusBadge, isDone ? s.statusDone : s.statusOngoing]}>
+            <Ionicons name={isDone ? 'checkmark-circle' : 'time-outline'} size={16} color={colors.textOnColor} />
+            <Text style={s.statusText}>{isDone ? 'Done' : 'Ongoing'}</Text>
           </View>
         </View>
 
-        <Text style={styles.title}>{task.title}</Text>
+        <Text style={s.title}>{task.title}</Text>
 
         {task.description ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Description</Text>
-            <Text style={styles.description}>{task.description}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>Description</Text>
+            <Text style={s.description}>{task.description}</Text>
           </View>
         ) : null}
 
-        <View style={styles.metaGrid}>
-          <View style={styles.metaItem}>
-            <Ionicons name="calendar-outline" size={18} color="#8E8E93" />
-            <View style={styles.metaText}>
-              <Text style={styles.metaLabel}>Due Date</Text>
-              <Text style={styles.metaValue}>{dueDateStr || 'None'}</Text>
+        <View style={s.metaGrid}>
+          <View style={s.metaItem}>
+            <Ionicons name="calendar-outline" size={18} color={colors.textTertiary} />
+            <View style={s.metaText}>
+              <Text style={s.metaLabel}>Due Date</Text>
+              <Text style={s.metaValue}>{dueDateStr || 'None'}</Text>
             </View>
           </View>
-          <View style={styles.metaItem}>
-            <Ionicons name="folder-outline" size={18} color="#8E8E93" />
-            <View style={styles.metaText}>
-              <Text style={styles.metaLabel}>Group</Text>
-              <Text style={styles.metaValue}>{groupTitle || 'Inbox'}</Text>
+          <View style={s.metaItem}>
+            <Ionicons name="folder-outline" size={18} color={colors.textTertiary} />
+            <View style={s.metaText}>
+              <Text style={s.metaLabel}>Group</Text>
+              <Text style={s.metaValue}>{groupTitle || 'Inbox'}</Text>
             </View>
           </View>
-          <View style={styles.metaItem}>
-            <Ionicons name="time-outline" size={18} color="#8E8E93" />
-            <View style={styles.metaText}>
-              <Text style={styles.metaLabel}>Created</Text>
-              <Text style={styles.metaValue}>{createdDateStr}</Text>
+          <View style={s.metaItem}>
+            <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
+            <View style={s.metaText}>
+              <Text style={s.metaLabel}>Created</Text>
+              <Text style={s.metaValue}>{createdDateStr}</Text>
             </View>
           </View>
         </View>
@@ -107,28 +110,28 @@ export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+const styles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.screenBackground },
   content: { padding: 20 },
-  errorText: { textAlign: 'center', marginTop: 40, fontSize: 16, color: '#8E8E93' },
+  errorText: { textAlign: 'center', marginTop: 40, fontSize: 16, color: c.textTertiary },
   statusBar: { flexDirection: 'row', marginBottom: 12 },
   statusBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16,
   },
-  statusDone: { backgroundColor: '#34C759' },
-  statusOngoing: { backgroundColor: '#FF9500' },
-  statusText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  title: { fontSize: 24, fontWeight: '700', color: '#1c1c1e', marginBottom: 20, lineHeight: 30 },
-  section: { backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 16 },
-  sectionLabel: { fontSize: 11, color: '#8E8E93', fontWeight: '600', textTransform: 'uppercase', marginBottom: 8 },
-  description: { fontSize: 16, color: '#1c1c1e', lineHeight: 22 },
+  statusDone: { backgroundColor: c.success },
+  statusOngoing: { backgroundColor: c.warning },
+  statusText: { color: c.textOnColor, fontSize: 14, fontWeight: '600' },
+  title: { fontSize: 24, fontWeight: '700', color: c.textPrimary, marginBottom: 20, lineHeight: 30 },
+  section: { backgroundColor: c.surface, borderRadius: 14, padding: 16, marginBottom: 16 },
+  sectionLabel: { fontSize: 11, color: c.textTertiary, fontWeight: '600', textTransform: 'uppercase', marginBottom: 8 },
+  description: { fontSize: 16, color: c.textPrimary, lineHeight: 22 },
   metaGrid: { gap: 1, borderRadius: 14, overflow: 'hidden' },
   metaItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#fff', padding: 16,
+    backgroundColor: c.surface, padding: 16,
   },
   metaText: { flex: 1 },
-  metaLabel: { fontSize: 11, color: '#8E8E93', fontWeight: '600', textTransform: 'uppercase', marginBottom: 2 },
-  metaValue: { fontSize: 15, color: '#1c1c1e' },
+  metaLabel: { fontSize: 11, color: c.textTertiary, fontWeight: '600', textTransform: 'uppercase', marginBottom: 2 },
+  metaValue: { fontSize: 15, color: c.textPrimary },
 });

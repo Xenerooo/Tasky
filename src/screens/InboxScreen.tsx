@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
 import { cancelForTask } from '../services/notifications';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface InboxScreenProps {
   navigation: any;
@@ -20,13 +21,14 @@ interface InboxItem {
   due_date?: string | null;
 }
 
-const ACTION_BUTTONS = [
-  { key: 'task', icon: 'checkbox-outline' as const, label: 'Task', color: '#007AFF' },
-  { key: 'note', icon: 'document-text-outline' as const, label: 'Note', color: '#34C759' },
-];
-
 export default function InboxScreen({ navigation }: InboxScreenProps) {
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   const { db } = useDatabase();
+  const ACTION_BUTTONS = [
+    { key: 'task' as const, icon: 'checkbox-outline' as const, label: 'Task', color: colors.primary },
+    { key: 'note' as const, icon: 'document-text-outline' as const, label: 'Note', color: colors.success },
+  ];
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState<InboxItem[]>([]);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<InboxItem | null>(null);
@@ -126,15 +128,15 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
   };
 
   const renderHeader = () => (
-    <View style={styles.headerBar}>
-      <Text style={styles.sectionTitle}>
+    <View style={s.headerBar}>
+      <Text style={s.sectionTitle}>
         {items.length > 0 ? `${items.length} item${items.length > 1 ? 's' : ''}` : ''}
       </Text>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={s.container} edges={['bottom']}>
       <FlatList
         data={items}
         keyExtractor={(item, index) => `${item.id}-${item.type}-${index}`}
@@ -155,28 +157,28 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
           />
         )}
         ListHeaderComponent={renderHeader}
-        ListEmptyComponent={<Text style={styles.emptyText}>No ungrouped items</Text>}
-        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={<Text style={s.emptyText}>No ungrouped items</Text>}
+        contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
       />
 
       {showFabMenu && (
-        <TouchableOpacity style={styles.fabOverlay} activeOpacity={1} onPress={toggleFabMenu} />
+        <TouchableOpacity style={s.fabOverlay} activeOpacity={1} onPress={toggleFabMenu} />
       )}
 
-      <View style={[styles.fabContainer, { bottom: insets.bottom + 16 }]}>
+      <View style={[s.fabContainer, { bottom: insets.bottom + 16 }]}>
         {showFabMenu && (
-          <Animated.View style={[styles.fabMenu, { opacity: fabAnim, transform: [{ translateY: fabAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
+          <Animated.View style={[s.fabMenu, { opacity: fabAnim, transform: [{ translateY: fabAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
             {ACTION_BUTTONS.map((btn) => (
-              <TouchableOpacity key={btn.key} style={[styles.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
-                <Ionicons name={btn.icon} size={20} color="#fff" />
-                <Text style={styles.fabMenuLabel}>{btn.label}</Text>
+              <TouchableOpacity key={btn.key} style={[s.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
+                <Ionicons name={btn.icon} size={20} color={colors.badgeText} />
+                <Text style={s.fabMenuLabel}>{btn.label}</Text>
               </TouchableOpacity>
             ))}
           </Animated.View>
         )}
-        <TouchableOpacity style={styles.fab} onPress={toggleFabMenu}>
-          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color="#fff" />
+        <TouchableOpacity style={s.fab} onPress={toggleFabMenu}>
+          <Ionicons name={showFabMenu ? 'close' : 'add'} size={28} color={colors.badgeText} />
         </TouchableOpacity>
       </View>
 
@@ -191,20 +193,20 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+const styles = (c: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.screenBackground },
   listContent: { paddingVertical: 12, paddingBottom: 100 },
   headerBar: { paddingHorizontal: 20, paddingBottom: 8 },
-  sectionTitle: { fontSize: 14, color: '#8E8E93', fontWeight: '600' },
-  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 15, color: '#8E8E93', fontStyle: 'italic' },
+  sectionTitle: { fontSize: 14, color: c.textTertiary, fontWeight: '600' },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 15, color: c.textTertiary, fontStyle: 'italic' },
   fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },
   fabContainer: { position: 'absolute', right: 16, alignItems: 'flex-end', zIndex: 9 },
   fabMenu: { marginBottom: 12, gap: 10 },
   fabMenuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, gap: 8 },
-  fabMenuLabel: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  fabMenuLabel: { color: c.badgeText, fontSize: 15, fontWeight: '600' },
   fab: {
-    width: 56, height: 56, borderRadius: 28, backgroundColor: '#007AFF',
+    width: 56, height: 56, borderRadius: 28, backgroundColor: c.primary,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6,
+    shadowColor: c.shadow, shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6,
   },
 });

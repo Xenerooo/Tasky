@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface DatePickerModalProps {
   visible: boolean;
@@ -13,6 +14,8 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function DatePickerModal({ visible, value, onConfirm, onCancel }: DatePickerModalProps) {
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   const initDate = value ? new Date(value + 'T00:00:00') : new Date();
   const [year, setYear] = useState(initDate.getFullYear());
   const [month, setMonth] = useState(initDate.getMonth());
@@ -75,32 +78,32 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <View style={styles.overlay}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Select Due Date</Text>
+      <View style={s.overlay}>
+        <View style={s.content}>
+          <Text style={s.title}>Select Due Date</Text>
 
-          <View style={styles.monthNav}>
-            <TouchableOpacity onPress={goPrevMonth} style={styles.navArrow}>
-              <Ionicons name="chevron-back" size={20} color="#007AFF" />
+          <View style={s.monthNav}>
+            <TouchableOpacity onPress={goPrevMonth} style={s.navArrow}>
+              <Ionicons name="chevron-back" size={20} color={colors.primary} />
             </TouchableOpacity>
-            <Text style={styles.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
-            <TouchableOpacity onPress={goNextMonth} style={styles.navArrow}>
-              <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+            <Text style={s.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
+            <TouchableOpacity onPress={goNextMonth} style={s.navArrow}>
+              <Ionicons name="chevron-forward" size={20} color={colors.primary} />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.weekRow}>
+          <View style={s.weekRow}>
             {WEEKDAYS.map((d, i) => (
-              <View key={d} style={styles.weekCell}>
-                <Text style={[styles.weekLabel, (i === 0 || i === 6) && styles.weekendLabel]}>{d}</Text>
+              <View key={d} style={s.weekCell}>
+                <Text style={[s.weekLabel, (i === 0 || i === 6) && s.weekendLabel]}>{d}</Text>
               </View>
             ))}
           </View>
 
           {weeks.map((week, wi) => (
-            <View key={wi} style={styles.weekRow}>
+            <View key={wi} style={s.weekRow}>
               {week.map((cell, ci) => {
-                if (!cell.day) return <View key={ci} style={styles.dayCell} />;
+                if (!cell.day) return <View key={ci} style={s.dayCell} />;
 
                 const cellDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
                 const isToday = cellDateKey === todayStr;
@@ -109,10 +112,10 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
                 return (
                   <TouchableOpacity
                     key={ci}
-                    style={[styles.dayCell, isSelected && styles.selectedCell]}
+                    style={[s.dayCell, isSelected && s.selectedCell]}
                     onPress={() => setSelectedDay(cell.day!)}
                   >
-                    <Text style={[styles.dayNum, isToday && styles.todayNum, isSelected && styles.selectedNum]}>
+                    <Text style={[s.dayNum, isToday && s.todayNum, isSelected && s.selectedNum]}>
                       {cell.day}
                     </Text>
                   </TouchableOpacity>
@@ -121,17 +124,17 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
             </View>
           ))}
 
-          <TouchableOpacity style={styles.todayBtn} onPress={goToToday}>
-            <Ionicons name="calendar" size={14} color="#007AFF" />
-            <Text style={styles.todayBtnText}>Today</Text>
+          <TouchableOpacity style={s.todayBtn} onPress={goToToday}>
+            <Ionicons name="calendar" size={14} color={colors.primary} />
+            <Text style={s.todayBtnText}>Today</Text>
           </TouchableOpacity>
 
-          <View style={styles.buttons}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
+          <View style={s.buttons}>
+            <TouchableOpacity style={s.cancelBtn} onPress={onCancel}>
+              <Text style={s.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.doneBtn} onPress={handleDone}>
-              <Text style={styles.doneText}>Done</Text>
+            <TouchableOpacity style={s.doneBtn} onPress={handleDone}>
+              <Text style={s.doneText}>Done</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -140,17 +143,17 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (c: ThemeColors) => StyleSheet.create({
   overlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.4)',
+    flex: 1, backgroundColor: c.overlay,
     justifyContent: 'center', alignItems: 'center',
   },
   content: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 20,
+    backgroundColor: c.surface, borderRadius: 16, padding: 20,
     width: '88%', maxWidth: 360,
   },
   title: {
-    fontSize: 18, fontWeight: '700', color: '#1c1c1e',
+    fontSize: 18, fontWeight: '700', color: c.textPrimary,
     textAlign: 'center', marginBottom: 12,
   },
   monthNav: {
@@ -158,35 +161,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4, marginBottom: 8,
   },
   navArrow: { padding: 6 },
-  monthTitle: { fontSize: 16, fontWeight: '600', color: '#1c1c1e' },
+  monthTitle: { fontSize: 16, fontWeight: '600', color: c.textPrimary },
   weekRow: { flexDirection: 'row' },
   weekCell: { flex: 1, alignItems: 'center', paddingVertical: 4 },
-  weekLabel: { fontSize: 11, color: '#8E8E93', fontWeight: '600', textTransform: 'uppercase' },
-  weekendLabel: { color: '#bbb' },
+  weekLabel: { fontSize: 11, color: c.textTertiary, fontWeight: '600', textTransform: 'uppercase' },
+  weekendLabel: { color: c.textLowPriority },
   dayCell: {
     flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center',
     borderRadius: 20, margin: 1,
   },
-  selectedCell: { backgroundColor: '#007AFF' },
-  dayNum: { fontSize: 14, color: '#1c1c1e', fontWeight: '400' },
-  todayNum: { color: '#007AFF', fontWeight: '700' },
-  selectedNum: { color: '#fff', fontWeight: '700' },
+  selectedCell: { backgroundColor: c.primary },
+  dayNum: { fontSize: 14, color: c.textPrimary, fontWeight: '400' },
+  todayNum: { color: c.primary, fontWeight: '700' },
+  selectedNum: { color: c.textOnColor, fontWeight: '700' },
   todayBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
     paddingVertical: 8, marginTop: 4,
   },
-  todayBtnText: { fontSize: 13, fontWeight: '600', color: '#007AFF' },
+  todayBtnText: { fontSize: 13, fontWeight: '600', color: c.primary },
   buttons: {
     flexDirection: 'row', gap: 10, marginTop: 8,
   },
   cancelBtn: {
     flex: 1, paddingVertical: 12, borderRadius: 10,
-    backgroundColor: '#f2f2f7', alignItems: 'center',
+    backgroundColor: c.screenBackground, alignItems: 'center',
   },
-  cancelText: { fontSize: 15, fontWeight: '600', color: '#8E8E93' },
+  cancelText: { fontSize: 15, fontWeight: '600', color: c.textTertiary },
   doneBtn: {
     flex: 1, paddingVertical: 12, borderRadius: 10,
-    backgroundColor: '#007AFF', alignItems: 'center',
+    backgroundColor: c.primary, alignItems: 'center',
   },
-  doneText: { fontSize: 15, fontWeight: '600', color: '#fff' },
+  doneText: { fontSize: 15, fontWeight: '600', color: c.textOnColor },
 });

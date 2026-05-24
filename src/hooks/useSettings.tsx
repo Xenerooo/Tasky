@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SETTINGS_KEY = 'tasky_settings';
@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   notificationsEnabled: true,
   vibrate: true,
   highPriority: true,
+  theme: 'light',
 };
 
 export interface AppSettings {
@@ -15,9 +16,19 @@ export interface AppSettings {
   notificationsEnabled: boolean;
   vibrate: boolean;
   highPriority: boolean;
+  theme: 'light' | 'dark' | 'nika';
 }
 
-export function useSettings() {
+interface SettingsContextValue {
+  settings: AppSettings;
+  loaded: boolean;
+  updateSettings: (partial: Partial<AppSettings>) => Promise<AppSettings>;
+  resetSettings: () => Promise<AppSettings>;
+}
+
+const SettingsContext = createContext<SettingsContextValue | null>(null);
+
+export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [loaded, setLoaded] = useState(false);
 
@@ -36,16 +47,11 @@ export function useSettings() {
   }, []);
 
   const updateSettings = useCallback(async (partial: Partial<AppSettings>) => {
-    const next = { ...DEFAULT_SETTINGS, ...(await (async () => {
-      try {
-        const stored = await AsyncStorage.getItem(SETTINGS_KEY);
-        return stored ? JSON.parse(stored) : {};
-      } catch { return {}; }
-    })()), ...partial };
+    const next = { ...settings, ...partial };
     setSettings(next);
     await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
     return next;
-  }, []);
+  }, [settings]);
 
   const resetSettings = useCallback(async () => {
     setSettings(DEFAULT_SETTINGS);
@@ -53,5 +59,15 @@ export function useSettings() {
     return DEFAULT_SETTINGS;
   }, []);
 
-  return { settings, loaded, updateSettings, resetSettings };
+  return (
+    <SettingsContext.Provider value={{ settings, loaded, updateSettings, resetSettings }}>
+      {children}
+    </SettingsContext.Provider>
+  );
+}
+
+export function useSettings() {
+  const ctx = useContext(SettingsContext);
+  if (!ctx) throw new Error('useSettings must be used within SettingsProvider');
+  return ctx;
 }

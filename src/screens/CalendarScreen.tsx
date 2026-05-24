@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCalendar } from '../hooks/useCalendar';
@@ -17,6 +18,8 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function CalendarScreen({ navigation }: CalendarScreenProps) {
+  const { colors } = useTheme();
+  const s = useMemo(() => styles(colors), [colors]);
   const { db } = useDatabase();
   const { year, month, daysMap, selectedDate, setSelectedDate, selectedDateItems, goNextMonth, goPrevMonth, goToToday, refresh } = useCalendar();
   const [confirmDelete, setConfirmDelete] = useState<{ item_id: string; event_type: string; display_text: string } | null>(null);
@@ -108,68 +111,68 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.monthNav}>
-          <TouchableOpacity onPress={goPrevMonth} style={styles.navArrow}>
-            <Ionicons name="chevron-back" size={24} color="#007AFF" />
+        <View style={s.monthNav}>
+          <TouchableOpacity onPress={goPrevMonth} style={s.navArrow}>
+            <Ionicons name="chevron-back" size={24} color={colors.primary} />
           </TouchableOpacity>
-          <Text style={styles.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
-          <TouchableOpacity onPress={goNextMonth} style={styles.navArrow}>
-            <Ionicons name="chevron-forward" size={24} color="#007AFF" />
+          <Text style={s.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
+          <TouchableOpacity onPress={goNextMonth} style={s.navArrow}>
+            <Ionicons name="chevron-forward" size={24} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.weekRow}>
+        <View style={s.weekRow}>
           {WEEKDAYS.map((d, i) => (
-            <View key={d} style={styles.weekCell}>
-              <Text style={[styles.weekLabel, (i === 0 || i === 6) && styles.weekendLabel]}>{d}</Text>
+            <View key={d} style={s.weekCell}>
+              <Text style={[s.weekLabel, (i === 0 || i === 6) && s.weekendLabel]}>{d}</Text>
             </View>
           ))}
         </View>
 
         {weeks.map((week, wi) => (
-          <View key={wi} style={styles.weekRow}>
+          <View key={wi} style={s.weekRow}>
             {week.map((cell, ci) => {
               const stats = cell.dateKey ? daysMap.get(cell.dateKey)?.stats : null;
               const isToday = cell.dateKey === todayStr;
               const isSelected = cell.dateKey === selectedDate;
 
               if (!cell.day) {
-                return <View key={ci} style={styles.dayCell} />;
+                return <View key={ci} style={s.dayCell} />;
               }
 
               return (
                 <TouchableOpacity
                   key={ci}
                   style={[
-                    styles.dayCell,
-                    isToday && styles.todayCell,
-                    isSelected && styles.selectedCell,
+                    s.dayCell,
+                    isToday && s.todayCell,
+                    isSelected && s.selectedCell,
                   ]}
                   onPress={() => handleDateTap(cell.dateKey!)}
                 >
                   <Text style={[
-                    styles.dayNum,
-                    isToday && styles.todayNum,
+                    s.dayNum,
+                    isToday && s.todayNum,
                   ]}>
                     {cell.day}
                   </Text>
                   {stats && (stats.tasksCreated > 0 || stats.tasksDue > 0 || stats.notesCreated > 0) && (
-                    <View style={styles.badgesRow}>
+                    <View style={s.badgesRow}>
                       {stats.tasksCreated > 0 && (
-                        <View style={[styles.badge, { backgroundColor: '#34C759' }]}>
-                          <Text style={styles.badgeText}>{stats.tasksCreated}</Text>
+                        <View style={[s.badge, { backgroundColor: colors.success }]}>
+                          <Text style={s.badgeText}>{stats.tasksCreated}</Text>
                         </View>
                       )}
                       {stats.tasksDue > 0 && (
-                        <View style={[styles.badge, { backgroundColor: '#FF3B30' }]}>
-                          <Text style={styles.badgeText}>{stats.tasksDue}</Text>
+                        <View style={[s.badge, { backgroundColor: colors.danger }]}>
+                          <Text style={s.badgeText}>{stats.tasksDue}</Text>
                         </View>
                       )}
                       {stats.notesCreated > 0 && (
-                        <View style={[styles.badge, { backgroundColor: '#AF52DE' }]}>
-                          <Text style={styles.badgeText}>{stats.notesCreated}</Text>
+                        <View style={[s.badge, { backgroundColor: colors.accent }]}>
+                          <Text style={s.badgeText}>{stats.notesCreated}</Text>
                         </View>
                       )}
                     </View>
@@ -181,24 +184,24 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
         ))}
 
         {!isCurrentMonth && (
-          <TouchableOpacity style={styles.todayBtn} onPress={goToToday}>
-            <Ionicons name="calendar" size={16} color="#fff" />
-            <Text style={styles.todayBtnText}>Today</Text>
+          <TouchableOpacity style={s.todayBtn} onPress={goToToday}>
+            <Ionicons name="calendar" size={16} color={colors.badgeText} />
+            <Text style={s.todayBtnText}>Today</Text>
           </TouchableOpacity>
         )}
 
         {selectedDate && (
-          <View style={styles.itemsSection}>
-            <View style={styles.itemsHeader}>
-              <Text style={styles.itemsDate}>{selectedDateDisplay}</Text>
-              <Text style={styles.itemsCount}>
+          <View style={s.itemsSection}>
+            <View style={s.itemsHeader}>
+              <Text style={s.itemsDate}>{selectedDateDisplay}</Text>
+              <Text style={s.itemsCount}>
                 {selectedDateItems.length > 0
                   ? `${selectedDateItems.length} item${selectedDateItems.length > 1 ? 's' : ''}`
                   : 'No events'}
               </Text>
             </View>
             {selectedDateItems.length > 0 && (
-              <View style={styles.itemsList}>
+              <View style={s.itemsList}>
                 {selectedDateItems.map((item, idx) => (
                   <TimelineCard
                     key={`${item.item_id}-${item.event_type}-${idx}`}
@@ -225,10 +228,10 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (c: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f7',
+    backgroundColor: c.screenBackground,
   },
   monthNav: {
     flexDirection: 'row',
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
   monthTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
   weekRow: {
     flexDirection: 'row',
@@ -256,12 +259,12 @@ const styles = StyleSheet.create({
   },
   weekLabel: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: c.textTertiary,
     fontWeight: '600',
     textTransform: 'uppercase',
   },
   weekendLabel: {
-    color: '#bbb',
+    color: c.textLowPriority,
   },
   dayCell: {
     flex: 1,
@@ -272,20 +275,20 @@ const styles = StyleSheet.create({
     margin: 1,
   },
   todayCell: {
-    backgroundColor: '#007AFF0D',
+    backgroundColor: c.calendarTodayBg,
   },
   selectedCell: {
-    backgroundColor: '#007AFF1A',
+    backgroundColor: c.calendarSelectedBg,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: c.primary,
   },
   dayNum: {
     fontSize: 14,
-    color: '#1c1c1e',
+    color: c.textPrimary,
     fontWeight: '400',
   },
   todayNum: {
-    color: '#007AFF',
+    color: c.primary,
     fontWeight: '700',
   },
   badgesRow: {
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 9,
-    color: '#fff',
+    color: c.badgeText,
     fontWeight: '700',
   },
   todayBtn: {
@@ -311,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: c.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -319,7 +322,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   todayBtnText: {
-    color: '#fff',
+    color: c.badgeText,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -337,11 +340,11 @@ const styles = StyleSheet.create({
   itemsDate: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1c1c1e',
+    color: c.textPrimary,
   },
   itemsCount: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: c.textTertiary,
     fontWeight: '500',
   },
   itemsList: {
