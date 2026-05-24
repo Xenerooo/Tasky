@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-offline-app",
-    "slug": "my-offline-app",
+    "name": "Tasky",
+    "slug": "tasky",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
