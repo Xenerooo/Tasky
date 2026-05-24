@@ -159,6 +159,11 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
     fetchWorkspace();
   }, [fetchWorkspace]);
 
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', fetchWorkspace);
+    return unsub;
+  }, [navigation, fetchWorkspace]);
+
   const progressDisplay = calculatedStatus === 'No Deadlines Scheduled'
     ? 'No Deadlines Scheduled'
     : `${calculatedStatus}${calculatedStatus === 'Ongoing' ? ` (${progress}%)` : ''}`;

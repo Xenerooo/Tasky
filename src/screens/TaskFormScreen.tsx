@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform
+  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useDatabase } from '../hooks/useDatabase';
+import DatePickerModal from '../components/DatePickerModal';
 import type { GroupedTask, InboxTask } from '../hooks/useGroupedTasks';
 
 interface TaskFormScreenProps {
@@ -30,7 +30,7 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
   const [status, setStatus] = useState('ongoing');
   const [groups, setGroups] = useState<GroupedTask[]>([]);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
   const titleRef = useRef<TextInput>(null);
   const isEditing = !!editTask;
 
@@ -75,14 +75,9 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
     navigation.goBack();
   };
 
-  const handleDateChange = (_: DateTimePickerEvent, selectedDate?: Date) => {
-    if (Platform.OS === 'android') setShowDatePicker(false);
-    if (selectedDate) {
-      const y = selectedDate.getFullYear();
-      const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const d = String(selectedDate.getDate()).padStart(2, '0');
-      setDueDate(`${y}-${m}-${d}`);
-    }
+  const handleDateConfirm = (dateStr: string) => {
+    setDueDate(dateStr);
+    setShowDateModal(false);
   };
 
   return (
@@ -136,7 +131,7 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
           </View>
         )}
 
-        <TouchableOpacity style={styles.pickerButton} onPress={() => setShowDatePicker(true)}>
+        <TouchableOpacity style={styles.pickerButton} onPress={() => setShowDateModal(true)}>
           <Text style={[styles.pickerButtonText, !dueDate && styles.placeholderText]}>
             {dueDate || 'Set due date (optional)'}
           </Text>
@@ -149,27 +144,12 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
             <Ionicons name="calendar-outline" size={20} color="#8E8E93" style={{ marginLeft: dueDate ? 8 : 0 }} />
           </View>
         </TouchableOpacity>
-        {showDatePicker && Platform.OS === 'ios' && (
-          <View style={styles.datePickerContainer}>
-            <DateTimePicker
-              value={dueDate ? new Date(dueDate + 'T00:00:00') : new Date()}
-              mode="date"
-              display="spinner"
-              onChange={handleDateChange}
-            />
-            <TouchableOpacity style={styles.datePickerDone} onPress={() => setShowDatePicker(false)}>
-              <Text style={styles.datePickerDoneText}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        {showDatePicker && Platform.OS === 'android' && (
-          <DateTimePicker
-            value={dueDate ? new Date(dueDate + 'T00:00:00') : new Date()}
-            mode="date"
-            display="default"
-            onChange={handleDateChange}
-          />
-        )}
+        <DatePickerModal
+          visible={showDateModal}
+          value={dueDate}
+          onConfirm={handleDateConfirm}
+          onCancel={() => setShowDateModal(false)}
+        />
 
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>Status</Text>
@@ -210,9 +190,7 @@ const styles = StyleSheet.create({
   pickerOptionActive: { fontSize: 16, color: '#007AFF', fontWeight: '600' },
   dateBtnRow: { flexDirection: 'row', alignItems: 'center' },
   clearDateText: { color: '#FF3B30', fontSize: 16, fontWeight: '700' },
-  datePickerContainer: { alignItems: 'center', marginBottom: 12 },
-  datePickerDone: { backgroundColor: '#007AFF', borderRadius: 8, paddingHorizontal: 20, paddingVertical: 8, marginTop: 8 },
-  datePickerDoneText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+
   statusRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginBottom: 12, paddingVertical: 4,
