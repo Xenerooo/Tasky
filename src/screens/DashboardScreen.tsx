@@ -145,7 +145,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.topBar}>
-        <Text style={styles.headerTitle}>Dashboard</Text>
+        <Text style={styles.headerTitle}>Tasky</Text>
       </View>
 
       <TextInput
