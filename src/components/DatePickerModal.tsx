@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
@@ -80,13 +81,13 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={s.overlay}>
         <View style={s.content}>
-          <Text style={s.title}>Select Due Date</Text>
+          <ThemedText style={s.title}>Select Due Date</ThemedText>
 
           <View style={s.monthNav}>
             <TouchableOpacity onPress={goPrevMonth} style={s.navArrow}>
               <Ionicons name="chevron-back" size={20} color={colors.primary} />
             </TouchableOpacity>
-            <Text style={s.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
+            <ThemedText style={s.monthTitle}>{MONTH_NAMES[month]} {year}</ThemedText>
             <TouchableOpacity onPress={goNextMonth} style={s.navArrow}>
               <Ionicons name="chevron-forward" size={20} color={colors.primary} />
             </TouchableOpacity>
@@ -95,7 +96,7 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
           <View style={s.weekRow}>
             {WEEKDAYS.map((d, i) => (
               <View key={d} style={s.weekCell}>
-                <Text style={[s.weekLabel, (i === 0 || i === 6) && s.weekendLabel]}>{d}</Text>
+                <ThemedText style={[s.weekLabel, (i === 0 || i === 6) && s.weekendLabel]}>{d}</ThemedText>
               </View>
             ))}
           </View>
@@ -115,9 +116,9 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
                     style={[s.dayCell, isSelected && s.selectedCell]}
                     onPress={() => setSelectedDay(cell.day!)}
                   >
-                    <Text style={[s.dayNum, isToday && s.todayNum, isSelected && s.selectedNum]}>
+                    <ThemedText style={[s.dayNum, isToday && s.todayNum, isSelected && s.selectedNum]}>
                       {cell.day}
-                    </Text>
+                    </ThemedText>
                   </TouchableOpacity>
                 );
               })}
@@ -126,15 +127,15 @@ export default function DatePickerModal({ visible, value, onConfirm, onCancel }:
 
           <TouchableOpacity style={s.todayBtn} onPress={goToToday}>
             <Ionicons name="calendar" size={14} color={colors.primary} />
-            <Text style={s.todayBtnText}>Today</Text>
+            <ThemedText style={s.todayBtnText}>Today</ThemedText>
           </TouchableOpacity>
 
           <View style={s.buttons}>
             <TouchableOpacity style={s.cancelBtn} onPress={onCancel}>
-              <Text style={s.cancelText}>Cancel</Text>
+              <ThemedText style={s.cancelText}>Cancel</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity style={s.doneBtn} onPress={handleDone}>
-              <Text style={s.doneText}>Done</Text>
+              <ThemedText style={s.doneText}>Done</ThemedText>
             </TouchableOpacity>
           </View>
         </View>

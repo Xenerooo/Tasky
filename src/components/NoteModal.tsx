@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import {
   Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView
 } from 'react-native';
@@ -74,7 +75,7 @@ export default function NoteModal({ visible, onClose, onSaved, defaultGroupId, e
         <View style={s.sheet}>
           <View style={s.handle} />
           <ScrollView keyboardShouldPersistTaps="handled">
-            <Text style={s.heading}>{viewOnly ? 'Note Details' : editNote ? 'Edit Note' : 'New Note'}</Text>
+            <ThemedText style={s.heading}>{viewOnly ? 'Note Details' : editNote ? 'Edit Note' : 'New Note'}</ThemedText>
 
             <TextInput
               ref={contentRef}
@@ -88,22 +89,22 @@ export default function NoteModal({ visible, onClose, onSaved, defaultGroupId, e
 
             {viewOnly ? (
               <View style={s.viewField}>
-                <Text style={s.viewLabel}>Group</Text>
-                <Text style={s.viewValue}>
+                <ThemedText style={s.viewLabel}>Group</ThemedText>
+                <ThemedText style={s.viewValue}>
                   {selectedGroupId
                     ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
                     : 'None (Unassigned)'}
-                </Text>
+                </ThemedText>
               </View>
             ) : (
               <>
                 <TouchableOpacity style={s.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
-                  <Text style={s.pickerButtonText}>
+                  <ThemedText style={s.pickerButtonText}>
                     {selectedGroupId
                       ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
                       : 'None (Unassigned)'}
-                  </Text>
-                  <Text style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
+                  </ThemedText>
+                  <ThemedText style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</ThemedText>
                 </TouchableOpacity>
                 {showGroupPicker && (
                   <View style={s.pickerDropdown}>
@@ -111,9 +112,9 @@ export default function NoteModal({ visible, onClose, onSaved, defaultGroupId, e
                       style={s.pickerOption}
                       onPress={() => { setSelectedGroupId(null); setShowGroupPicker(false); }}
                     >
-                      <Text style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
+                      <ThemedText style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
                         None (Unassigned)
-                      </Text>
+                      </ThemedText>
                     </TouchableOpacity>
                     {groups.map(g => (
                       <TouchableOpacity
@@ -121,9 +122,9 @@ export default function NoteModal({ visible, onClose, onSaved, defaultGroupId, e
                         style={s.pickerOption}
                         onPress={() => { setSelectedGroupId(g.id); setShowGroupPicker(false); }}
                       >
-                        <Text style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
+                        <ThemedText style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
                           {g.title}
-                        </Text>
+                        </ThemedText>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -133,15 +134,15 @@ export default function NoteModal({ visible, onClose, onSaved, defaultGroupId, e
 
             {viewOnly ? (
               <TouchableOpacity style={s.saveButton} onPress={onClose}>
-                <Text style={s.saveButtonText}>Close</Text>
+                <ThemedText style={s.saveButtonText}>Close</ThemedText>
               </TouchableOpacity>
             ) : (
               <>
                 <TouchableOpacity style={s.saveButton} onPress={handleSave}>
-                  <Text style={s.saveButtonText}>Save Note</Text>
+                  <ThemedText style={s.saveButtonText}>Save Note</ThemedText>
                 </TouchableOpacity>
                 <TouchableOpacity style={s.cancelButton} onPress={onClose}>
-                  <Text style={s.cancelButtonText}>Cancel</Text>
+                  <ThemedText style={s.cancelButtonText}>Cancel</ThemedText>
                 </TouchableOpacity>
               </>
             )}

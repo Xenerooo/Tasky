@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,14 +9,26 @@ import { initializeNotifications, updateNotificationChannel } from './src/servic
 import { SettingsProvider, useSettings } from './src/hooks/useSettings';
 import { ThemeProvider } from './src/theme/ThemeContext';
 import * as Notifications from 'expo-notifications';
+import { useFonts, loadAsync } from 'expo-font';
 
 function AppContent() {
   const { loading } = useDatabase();
   const { settings, loaded: settingsLoaded } = useSettings();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const navigationRef = useRef<NavigationContainerRef<any>>(null);
 
   useEffect(() => {
     initializeNotifications();
+  }, []);
+
+  useEffect(() => {
+    loadAsync({
+      Amarillo: require('./assets/fonts/Amarillo.otf'),
+      SourceSerif4: require('./assets/fonts/SourceSerif4.ttf'),
+    }).then(() => setFontsLoaded(true)).catch(e => {
+      console.warn('Font load failed', e);
+      setFontsLoaded(true);
+    });
   }, []);
 
   useEffect(() => {
@@ -50,7 +62,7 @@ function AppContent() {
     }
   }, [loading]);
 
-  if (loading) {
+  if (loading || !fontsLoaded) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color="#007AFF" />

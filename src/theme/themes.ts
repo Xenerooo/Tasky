@@ -12,6 +12,7 @@ export interface ThemeColors {
   danger: string;
   warning: string;
   accent: string;
+  amarillo: string;
 
   textPrimary: string;
   textSecondary: string;
@@ -48,6 +49,9 @@ export interface ThemeColors {
   calendarSelectedBg: string;
   noteBadgeBg: string;
   badgeText: string;
+
+  headingFont: string | undefined;
+  bodyFont: string | undefined;
 }
 
 export type ThemeName = 'light' | 'dark' | 'nika';
@@ -66,6 +70,7 @@ export const light: ThemeColors = {
   danger: '#FF3B30',
   warning: '#FF9500',
   accent: '#AF52DE',
+  amarillo: '#D4AF37',
 
   textPrimary: '#1c1c1e',
   textSecondary: '#333',
@@ -102,6 +107,9 @@ export const light: ThemeColors = {
   calendarSelectedBg: '#007AFF1A',
   noteBadgeBg: '#34C75920',
   badgeText: '#fff',
+
+  headingFont: undefined,
+  bodyFont: undefined,
 };
 
 export const dark: ThemeColors = {
@@ -118,6 +126,7 @@ export const dark: ThemeColors = {
   danger: '#FF453A',
   warning: '#FF9F0A',
   accent: '#BF5AF2',
+  amarillo: '#D4AF37',
 
   textPrimary: '#f2f2f7',
   textSecondary: '#e5e5ea',
@@ -154,6 +163,9 @@ export const dark: ThemeColors = {
   calendarSelectedBg: '#0A84FF33',
   noteBadgeBg: '#30D15833',
   badgeText: '#fff',
+
+  headingFont: undefined,
+  bodyFont: undefined,
 };
 
 export const nika: ThemeColors = {
@@ -170,6 +182,7 @@ export const nika: ThemeColors = {
   danger: '#FF8A8A',
   warning: '#F0C488',
   accent: '#D4A0D4',
+  amarillo: '#FFD400',
 
   textPrimary: '#4A3030',
   textSecondary: '#6B4A4A',
@@ -206,4 +219,7 @@ export const nika: ThemeColors = {
   calendarSelectedBg: '#FFB6C166',
   noteBadgeBg: '#A8D8B940',
   badgeText: '#4A3030',
+
+  headingFont: 'Amarillo',
+  bodyFont: 'SourceSerif4',
 };

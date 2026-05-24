@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { Alert, View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -101,7 +102,7 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
     <SafeAreaView style={s.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={s.content}>
         <View style={s.section}>
-          <Text style={s.sectionTitle}>THEME</Text>
+          <ThemedText style={s.sectionTitle}>THEME</ThemedText>
           <View style={s.themeRow}>
             {THEMES.map(t => {
               const isActive = settings.theme === t.key;
@@ -112,7 +113,7 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
                   onPress={() => handleThemeChange(t.key)}
                 >
                   <Ionicons name={t.icon} size={22} color={isActive ? colors.textOnColor : colors.textTertiary} />
-                  <Text style={[s.themeBtnLabel, isActive && s.themeBtnLabelActive]}>{t.label}</Text>
+                  <ThemedText style={[s.themeBtnLabel, isActive && s.themeBtnLabelActive]}>{t.label}</ThemedText>
                 </TouchableOpacity>
               );
             })}
@@ -120,12 +121,12 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
         </View>
 
         <View style={s.section}>
-          <Text style={s.sectionTitle}>NOTIFICATIONS</Text>
+          <ThemedText style={s.sectionTitle}>NOTIFICATIONS</ThemedText>
 
           <View style={s.row}>
             <View style={s.rowLeft}>
               <Ionicons name="notifications-outline" size={22} color={colors.primary} />
-              <Text style={s.rowLabel}>Enable Notifications</Text>
+              <ThemedText style={s.rowLabel}>Enable Notifications</ThemedText>
             </View>
             <TouchableOpacity
               style={[s.toggle, settings.notificationsEnabled && s.toggleOn]}
@@ -138,28 +139,28 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
           <View style={s.row}>
             <View style={s.rowLeft}>
               <Ionicons name="calendar-outline" size={22} color={colors.warning} />
-              <Text style={s.rowLabel}>Remind before due</Text>
+              <ThemedText style={s.rowLabel}>Remind before due</ThemedText>
             </View>
             <View style={s.stepper}>
               <TouchableOpacity style={s.stepperBtn} onPress={() => handleReminderDays(-1)}>
                 <Ionicons name="remove" size={18} color={colors.primary} />
               </TouchableOpacity>
-              <Text style={s.stepperValue}>{settings.reminderDays}</Text>
+              <ThemedText style={s.stepperValue}>{settings.reminderDays}</ThemedText>
               <TouchableOpacity style={s.stepperBtn} onPress={() => handleReminderDays(1)}>
                 <Ionicons name="add" size={18} color={colors.primary} />
               </TouchableOpacity>
-              <Text style={s.stepperUnit}>days</Text>
+              <ThemedText style={s.stepperUnit}>days</ThemedText>
             </View>
           </View>
         </View>
 
         <View style={s.section}>
-          <Text style={s.sectionTitle}>PRIORITY</Text>
+          <ThemedText style={s.sectionTitle}>PRIORITY</ThemedText>
 
           <View style={s.row}>
             <View style={s.rowLeft}>
               <Ionicons name="alarm-outline" size={22} color={colors.success} />
-              <Text style={s.rowLabel}>Vibrate</Text>
+              <ThemedText style={s.rowLabel}>Vibrate</ThemedText>
             </View>
             <TouchableOpacity
               style={[s.toggle, settings.vibrate && s.toggleOn]}
@@ -172,7 +173,7 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
           <View style={s.row}>
             <View style={s.rowLeft}>
               <Ionicons name="alert-circle-outline" size={22} color={colors.danger} />
-              <Text style={s.rowLabel}>High Priority</Text>
+              <ThemedText style={s.rowLabel}>High Priority</ThemedText>
             </View>
             <TouchableOpacity
               style={[s.toggle, settings.highPriority && s.toggleOn]}
@@ -185,7 +186,7 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
 
         <TouchableOpacity style={s.testButton} onPress={handleTestNotification}>
           <Ionicons name="flash-outline" size={20} color={colors.textOnColor} />
-          <Text style={s.testButtonText}>Send Test Notification</Text>
+          <ThemedText style={s.testButtonText}>Send Test Notification</ThemedText>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

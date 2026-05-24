@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -129,9 +130,9 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
 
   const renderHeader = () => (
     <View style={s.headerBar}>
-      <Text style={s.sectionTitle}>
+      <ThemedText style={s.sectionTitle}>
         {items.length > 0 ? `${items.length} item${items.length > 1 ? 's' : ''}` : ''}
-      </Text>
+      </ThemedText>
     </View>
   );
 
@@ -157,7 +158,7 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
           />
         )}
         ListHeaderComponent={renderHeader}
-        ListEmptyComponent={<Text style={s.emptyText}>No ungrouped items</Text>}
+        ListEmptyComponent={<ThemedText style={s.emptyText}>No ungrouped items</ThemedText>}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
       />
@@ -172,7 +173,7 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
             {ACTION_BUTTONS.map((btn) => (
               <TouchableOpacity key={btn.key} style={[s.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
                 <Ionicons name={btn.icon} size={20} color={colors.badgeText} />
-                <Text style={s.fabMenuLabel}>{btn.label}</Text>
+                <ThemedText style={s.fabMenuLabel}>{btn.label}</ThemedText>
               </TouchableOpacity>
             ))}
           </Animated.View>
@@ -197,7 +198,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.screenBackground },
   listContent: { paddingVertical: 12, paddingBottom: 100 },
   headerBar: { paddingHorizontal: 20, paddingBottom: 8 },
-  sectionTitle: { fontSize: 14, color: c.textTertiary, fontWeight: '600' },
+  sectionTitle: { fontSize: 14, color: c.textTertiary, fontWeight: '600', fontFamily: c.headingFont },
   emptyText: { textAlign: 'center', marginTop: 40, fontSize: 15, color: c.textTertiary, fontStyle: 'italic' },
   fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },
   fabContainer: { position: 'absolute', right: 16, alignItems: 'flex-end', zIndex: 9 },

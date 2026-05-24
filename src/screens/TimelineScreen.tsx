@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, SectionList, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTimeline, type TimelineEvent, type TimelineSection } from '../hooks/useTimeline';
@@ -13,8 +14,10 @@ interface TimelineScreenProps {
 export default function TimelineScreen({ navigation }: TimelineScreenProps) {
   const { sections, search, setSearch, filter, setFilter, refresh } = useTimeline();
   const { db } = useDatabase();
-  const { colors } = useTheme();
+  const { colors, themeName } = useTheme();
   const s = useMemo(() => styles(colors), [colors]);
+  const headerColor = colors.textPrimary;
+  const headerFontSize = themeName === 'nika' ? 20 : 28;
 
   const [groupTitles, setGroupTitles] = React.useState<Record<string, string>>({});
 
@@ -47,7 +50,7 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
   const renderSectionHeader = ({ section }: { section: TimelineSection }) => (
     <View style={s.sectionHeader}>
       <View style={s.sectionLine} />
-      <Text style={s.sectionTitle}>{section.title}</Text>
+      <ThemedText style={s.sectionTitle}>{section.title}</ThemedText>
     </View>
   );
 
@@ -63,7 +66,7 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
   return (
     <SafeAreaView style={s.container} edges={['top']}>
       <View style={s.topBar}>
-        <Text style={s.headerTitle}>Timeline</Text>
+        <ThemedText style={[s.headerTitle, { color: headerColor, fontSize: headerFontSize } ]}>Timeline</ThemedText>
       </View>
 
       <TextInput
@@ -80,9 +83,9 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
             style={[s.filterPill, filter === f.key && s.filterPillActive]}
             onPress={() => setFilter(f.key)}
           >
-            <Text style={[s.filterPillText, filter === f.key && s.filterPillTextActive]}>
+            <ThemedText style={[s.filterPillText, filter === f.key && s.filterPillTextActive]}>
               {f.label}
-            </Text>
+            </ThemedText>
           </TouchableOpacity>
         ))}
       </View>
@@ -97,7 +100,7 @@ export default function TimelineScreen({ navigation }: TimelineScreenProps) {
         onRefresh={refresh}
         refreshing={false}
         ListEmptyComponent={
-          <Text style={s.emptyText}>No timeline events found</Text>
+          <ThemedText style={s.emptyText}>No timeline events found</ThemedText>
         }
       />
     </SafeAreaView>
@@ -114,9 +117,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
     paddingVertical: 12,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: c.textPrimary,
+    fontFamily: c.headingFont,
   },
   searchInput: {
     marginHorizontal: 16,

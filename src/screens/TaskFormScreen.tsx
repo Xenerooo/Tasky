@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView
 } from 'react-native';
@@ -120,12 +121,12 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
         />
 
         <TouchableOpacity style={s.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
-          <Text style={[s.pickerButtonText, !selectedGroupId && s.placeholderText]}>
+          <ThemedText style={[s.pickerButtonText, !selectedGroupId && s.placeholderText]}>
             {selectedGroupId
               ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
               : 'None (Inbox)'}
-          </Text>
-          <Text style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
+          </ThemedText>
+          <ThemedText style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</ThemedText>
         </TouchableOpacity>
         {showGroupPicker && (
           <View style={s.pickerDropdown}>
@@ -133,9 +134,9 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
               style={s.pickerOption}
               onPress={() => { setSelectedGroupId(null); setShowGroupPicker(false); }}
             >
-              <Text style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
+              <ThemedText style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
                 None (Inbox)
-              </Text>
+              </ThemedText>
             </TouchableOpacity>
             {groups.map(g => (
               <TouchableOpacity
@@ -143,22 +144,22 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
                 style={s.pickerOption}
                 onPress={() => { setSelectedGroupId(g.id); setShowGroupPicker(false); }}
               >
-                <Text style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
+                <ThemedText style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
                   {g.title}
-                </Text>
+                </ThemedText>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
         <TouchableOpacity style={s.pickerButton} onPress={() => setShowDateModal(true)}>
-          <Text style={[s.pickerButtonText, !dueDate && s.placeholderText]}>
+          <ThemedText style={[s.pickerButtonText, !dueDate && s.placeholderText]}>
             {dueDate || 'Set due date (optional)'}
-          </Text>
+          </ThemedText>
           <View style={s.dateBtnRow}>
             {dueDate ? (
               <TouchableOpacity onPress={() => setDueDate('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={s.clearDateText}>✕</Text>
+                <ThemedText style={s.clearDateText}>✕</ThemedText>
               </TouchableOpacity>
             ) : null}
             <Ionicons name="calendar-outline" size={20} color={colors.textTertiary} style={{ marginLeft: dueDate ? 8 : 0 }} />
@@ -172,17 +173,17 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
         />
 
         <View style={s.statusRow}>
-          <Text style={s.statusLabel}>Status</Text>
+          <ThemedText style={s.statusLabel}>Status</ThemedText>
           <TouchableOpacity
             style={[s.statusBadge, status === 'done' ? s.statusDone : s.statusOngoing]}
             onPress={() => setStatus(prev => (prev === 'ongoing' ? 'done' : 'ongoing'))}
           >
-            <Text style={s.statusBadgeText}>{status === 'done' ? '✓ Done' : '○ Ongoing'}</Text>
+            <ThemedText style={s.statusBadgeText}>{status === 'done' ? '✓ Done' : '○ Ongoing'}</ThemedText>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={s.saveButton} onPress={handleSave}>
-          <Text style={s.saveButtonText}>{isEditing ? 'Update Task' : 'Save Task'}</Text>
+          <ThemedText style={s.saveButtonText}>{isEditing ? 'Update Task' : 'Save Task'}</ThemedText>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

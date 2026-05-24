@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
@@ -29,17 +30,17 @@ export default function ConfirmModal({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={s.overlay}>
         <View style={s.content}>
-          <Text style={s.title}>{title}</Text>
-          <Text style={s.message}>{message}</Text>
+          <ThemedText style={s.title}>{title}</ThemedText>
+          <ThemedText style={s.message}>{message}</ThemedText>
           <View style={s.buttons}>
             <TouchableOpacity style={s.cancelBtn} onPress={onCancel}>
-              <Text style={s.cancelText}>{cancelLabel}</Text>
+              <ThemedText style={s.cancelText}>{cancelLabel}</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.confirmBtn, destructive && s.confirmBtnDestructive]}
               onPress={onConfirm}
             >
-              <Text style={s.confirmText}>{confirmLabel}</Text>
+              <ThemedText style={s.confirmText}>{confirmLabel}</ThemedText>
             </TouchableOpacity>
           </View>
         </View>

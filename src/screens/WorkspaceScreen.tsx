@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet, Animated
 } from 'react-native';
@@ -178,8 +179,8 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
   return (
     <SafeAreaView style={s.container} edges={['bottom']}>
       <View style={s.header}>
-        <Text style={s.title}>{groupTitle}</Text>
-        <Text style={s.statusText}>{progressDisplay}</Text>
+        <ThemedText style={s.title}>{groupTitle}</ThemedText>
+        <ThemedText style={s.statusText}>{progressDisplay}</ThemedText>
       </View>
 
       <FlatList
@@ -215,7 +216,7 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
             {ACTION_BUTTONS.map((btn) => (
               <TouchableOpacity key={btn.key} style={[s.fabMenuItem, { backgroundColor: btn.color }]} onPress={() => handleFabAction(btn.key)}>
                 <Ionicons name={btn.icon} size={20} color={colors.badgeText} />
-                <Text style={s.fabMenuLabel}>{btn.label}</Text>
+                <ThemedText style={s.fabMenuLabel}>{btn.label}</ThemedText>
               </TouchableOpacity>
             ))}
           </Animated.View>
@@ -242,7 +243,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
     backgroundColor: c.surface, paddingHorizontal: 16, paddingVertical: 14,
     borderBottomWidth: 1, borderBottomColor: c.borderSeparator,
   },
-  title: { fontSize: 22, fontWeight: '700', color: c.textPrimary, marginBottom: 4 },
+  title: { fontSize: 22, fontWeight: '700', color: c.textPrimary, marginBottom: 4, fontFamily: c.headingFont },
   statusText: { fontSize: 14, color: c.textTertiary, fontWeight: '500' },
   listContent: { paddingVertical: 12, paddingBottom: 100 },
   fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },

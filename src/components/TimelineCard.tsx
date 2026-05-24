@@ -1,4 +1,5 @@
-import React, { useRef, useMemo } from 'react';
+﻿import React, { useRef, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
@@ -129,20 +130,20 @@ export default function TimelineCard({ event, groupTitle, status, dueDate, showT
         </View>
         <View style={s.content}>
           <View style={s.topRow}>
-            <Text style={[s.eventType, { color: isDone ? colors.success : config.color }]}>
+            <ThemedText style={[s.eventType, { color: isDone ? colors.success : config.color }]}>
               {isDone ? 'Done' : isDeadline ? 'Deadline' : isTask ? 'Task' : config.label}
-            </Text>
-            {groupTitle && <Text style={s.groupBadge}>{groupTitle}</Text>}
+            </ThemedText>
+            {groupTitle && <ThemedText style={s.groupBadge}>{groupTitle}</ThemedText>}
           </View>
-          <Text style={[s.displayText, (isTaskNear || isDeadline) && s.overdueText]} numberOfLines={2}>
+          <ThemedText style={[s.displayText, (isTaskNear || isDeadline) && s.overdueText]} numberOfLines={2}>
             {event.display_text}
-          </Text>
+          </ThemedText>
           <View style={s.metaRow}>
-            <Text style={s.date}>{dateStr}</Text>
-            {dueDateStr && <Text style={[s.dueDate, (isTaskNear || isDeadline) && s.overdueText]}>{dueDateStr}</Text>}
+            <ThemedText style={s.date}>{dateStr}</ThemedText>
+            {dueDateStr && <ThemedText style={[s.dueDate, (isTaskNear || isDeadline) && s.overdueText]}>{dueDateStr}</ThemedText>}
           </View>
           {isDeadline && event.event_date && (
-            <Text style={s.deadlineCountdown}>{getDeadlineCountdown(event.event_date)}</Text>
+            <ThemedText style={s.deadlineCountdown}>{getDeadlineCountdown(event.event_date)}</ThemedText>
           )}
         </View>
       </View>
@@ -169,8 +170,8 @@ export default function TimelineCard({ event, groupTitle, status, dueDate, showT
       return (
         <View style={s.groupCreatedRow}>
           <View style={s.groupCreatedDot} />
-          <Text style={s.groupCreatedText}>{config.label}: {event.display_text}</Text>
-          <Text style={s.groupCreatedDate}>{dateStr}</Text>
+          <ThemedText style={s.groupCreatedText}>{config.label}: {event.display_text}</ThemedText>
+          <ThemedText style={s.groupCreatedDate}>{dateStr}</ThemedText>
         </View>
       );
     }
@@ -183,11 +184,11 @@ export default function TimelineCard({ event, groupTitle, status, dueDate, showT
         <Animated.View style={[s.actionsInner, { opacity: actionsOpacity }]}>
           <TouchableOpacity style={s.actionBtn} onPress={handleEdit}>
             <Ionicons name="pencil" size={18} color={colors.textOnColor} />
-            <Text style={s.actionLabel}>Edit</Text>
+            <ThemedText style={s.actionLabel}>Edit</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={[s.actionBtn, s.actionDelete]} onPress={handleDelete}>
             <Ionicons name="trash-outline" size={18} color={colors.textOnColor} />
-            <Text style={s.actionLabel}>Delete</Text>
+            <ThemedText style={s.actionLabel}>Delete</ThemedText>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -222,7 +223,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 8 },
   eventType: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
   groupBadge: { fontSize: 11, color: c.textTertiary, backgroundColor: c.borderDivider, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
-  displayText: { fontSize: 15, color: c.textPrimary, lineHeight: 20, marginBottom: 4 },
+  displayText: { fontSize: 15, color: c.textPrimary, lineHeight: 20, marginBottom: 4, fontFamily: c.bodyFont },
   overdueText: { color: c.danger, fontWeight: '600' },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   date: { fontSize: 12, color: c.textTertiary },

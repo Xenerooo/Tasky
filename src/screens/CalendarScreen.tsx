@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
@@ -117,7 +118,7 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
           <TouchableOpacity onPress={goPrevMonth} style={s.navArrow}>
             <Ionicons name="chevron-back" size={24} color={colors.primary} />
           </TouchableOpacity>
-          <Text style={s.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
+          <ThemedText style={s.monthTitle}>{MONTH_NAMES[month]} {year}</ThemedText>
           <TouchableOpacity onPress={goNextMonth} style={s.navArrow}>
             <Ionicons name="chevron-forward" size={24} color={colors.primary} />
           </TouchableOpacity>
@@ -126,7 +127,7 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
         <View style={s.weekRow}>
           {WEEKDAYS.map((d, i) => (
             <View key={d} style={s.weekCell}>
-              <Text style={[s.weekLabel, (i === 0 || i === 6) && s.weekendLabel]}>{d}</Text>
+              <ThemedText style={[s.weekLabel, (i === 0 || i === 6) && s.weekendLabel]}>{d}</ThemedText>
             </View>
           ))}
         </View>
@@ -152,27 +153,27 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
                   ]}
                   onPress={() => handleDateTap(cell.dateKey!)}
                 >
-                  <Text style={[
+                  <ThemedText style={[
                     s.dayNum,
                     isToday && s.todayNum,
                   ]}>
                     {cell.day}
-                  </Text>
+                  </ThemedText>
                   {stats && (stats.tasksCreated > 0 || stats.tasksDue > 0 || stats.notesCreated > 0) && (
                     <View style={s.badgesRow}>
                       {stats.tasksCreated > 0 && (
                         <View style={[s.badge, { backgroundColor: colors.success }]}>
-                          <Text style={s.badgeText}>{stats.tasksCreated}</Text>
+                          <ThemedText style={s.badgeText}>{stats.tasksCreated}</ThemedText>
                         </View>
                       )}
                       {stats.tasksDue > 0 && (
                         <View style={[s.badge, { backgroundColor: colors.danger }]}>
-                          <Text style={s.badgeText}>{stats.tasksDue}</Text>
+                          <ThemedText style={s.badgeText}>{stats.tasksDue}</ThemedText>
                         </View>
                       )}
                       {stats.notesCreated > 0 && (
                         <View style={[s.badge, { backgroundColor: colors.accent }]}>
-                          <Text style={s.badgeText}>{stats.notesCreated}</Text>
+                          <ThemedText style={s.badgeText}>{stats.notesCreated}</ThemedText>
                         </View>
                       )}
                     </View>
@@ -186,19 +187,19 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
         {!isCurrentMonth && (
           <TouchableOpacity style={s.todayBtn} onPress={goToToday}>
             <Ionicons name="calendar" size={16} color={colors.badgeText} />
-            <Text style={s.todayBtnText}>Today</Text>
+            <ThemedText style={s.todayBtnText}>Today</ThemedText>
           </TouchableOpacity>
         )}
 
         {selectedDate && (
           <View style={s.itemsSection}>
             <View style={s.itemsHeader}>
-              <Text style={s.itemsDate}>{selectedDateDisplay}</Text>
-              <Text style={s.itemsCount}>
+              <ThemedText style={s.itemsDate}>{selectedDateDisplay}</ThemedText>
+              <ThemedText style={s.itemsCount}>
                 {selectedDateItems.length > 0
                   ? `${selectedDateItems.length} item${selectedDateItems.length > 1 ? 's' : ''}`
                   : 'No events'}
-              </Text>
+              </ThemedText>
             </View>
             {selectedDateItems.length > 0 && (
               <View style={s.itemsList}>

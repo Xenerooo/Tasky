@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -49,7 +50,7 @@ export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
   if (!task) {
     return (
       <SafeAreaView style={s.container}>
-        <Text style={s.errorText}>Task not found</Text>
+        <ThemedText style={s.errorText}>Task not found</ThemedText>
       </SafeAreaView>
     );
   }
@@ -69,16 +70,16 @@ export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
         <View style={s.statusBar}>
           <View style={[s.statusBadge, isDone ? s.statusDone : s.statusOngoing]}>
             <Ionicons name={isDone ? 'checkmark-circle' : 'time-outline'} size={16} color={colors.textOnColor} />
-            <Text style={s.statusText}>{isDone ? 'Done' : 'Ongoing'}</Text>
+            <ThemedText style={s.statusText}>{isDone ? 'Done' : 'Ongoing'}</ThemedText>
           </View>
         </View>
 
-        <Text style={s.title}>{task.title}</Text>
+        <ThemedText style={s.title}>{task.title}</ThemedText>
 
         {task.description ? (
           <View style={s.section}>
-            <Text style={s.sectionLabel}>Description</Text>
-            <Text style={s.description}>{task.description}</Text>
+            <ThemedText style={s.sectionLabel}>Description</ThemedText>
+            <ThemedText style={s.description}>{task.description}</ThemedText>
           </View>
         ) : null}
 
@@ -86,22 +87,22 @@ export default function TaskDetailScreen({ route }: TaskDetailScreenProps) {
           <View style={s.metaItem}>
             <Ionicons name="calendar-outline" size={18} color={colors.textTertiary} />
             <View style={s.metaText}>
-              <Text style={s.metaLabel}>Due Date</Text>
-              <Text style={s.metaValue}>{dueDateStr || 'None'}</Text>
+              <ThemedText style={s.metaLabel}>Due Date</ThemedText>
+              <ThemedText style={s.metaValue}>{dueDateStr || 'None'}</ThemedText>
             </View>
           </View>
           <View style={s.metaItem}>
             <Ionicons name="folder-outline" size={18} color={colors.textTertiary} />
             <View style={s.metaText}>
-              <Text style={s.metaLabel}>Group</Text>
-              <Text style={s.metaValue}>{groupTitle || 'Inbox'}</Text>
+              <ThemedText style={s.metaLabel}>Group</ThemedText>
+              <ThemedText style={s.metaValue}>{groupTitle || 'Inbox'}</ThemedText>
             </View>
           </View>
           <View style={s.metaItem}>
             <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
             <View style={s.metaText}>
-              <Text style={s.metaLabel}>Created</Text>
-              <Text style={s.metaValue}>{createdDateStr}</Text>
+              <ThemedText style={s.metaLabel}>Created</ThemedText>
+              <ThemedText style={s.metaValue}>{createdDateStr}</ThemedText>
             </View>
           </View>
         </View>

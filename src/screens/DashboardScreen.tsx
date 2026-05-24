@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import {
   View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, Animated
 } from 'react-native';
@@ -16,8 +17,10 @@ interface DashboardScreenProps {
 }
 
 export default function DashboardScreen({ navigation }: DashboardScreenProps) {
-  const { colors } = useTheme();
+  const { colors, themeName } = useTheme();
   const s = useMemo(() => styles(colors), [colors]);
+  const headerColor = colors.textPrimary;
+  const headerFontSize = themeName === 'nika' ? 20 : 28;
   const ACTION_BUTTONS = [
     { key: 'task' as const, icon: 'checkbox-outline' as const, label: 'Task', color: colors.primary },
     { key: 'note' as const, icon: 'document-text-outline' as const, label: 'Note', color: colors.success },
@@ -93,11 +96,11 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
     <View>
       <View style={s.inboxSection}>
         <TouchableOpacity style={s.sectionHeader} onPress={() => navigation.navigate('Inbox')}>
-          <Text style={s.sectionTitle}>Tasks/Notes</Text>
-          <Text style={s.seeAllText}>See all ›</Text>
+          <ThemedText style={s.sectionTitle}>Tasks/Notes</ThemedText>
+          <ThemedText style={s.seeAllText}>See all ›</ThemedText>
         </TouchableOpacity>
         {inboxItems.length === 0 ? (
-          <Text style={s.emptyText}>No floating items</Text>
+          <ThemedText style={s.emptyText}>No floating items</ThemedText>
         ) : (
           inboxItems.map(item => (
             <TouchableOpacity
@@ -116,30 +119,30 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                   <>
                     <View style={s.inboxTitleRow}>
                       <View style={[s.typeDot, { backgroundColor: colors.primary }]} />
-                      <Text style={s.inboxTitle} numberOfLines={1}>{item.display_text}</Text>
+                      <ThemedText style={s.inboxTitle} numberOfLines={1}>{item.display_text}</ThemedText>
                     </View>
                     {item.due_date && (
-                      <Text style={s.inboxDue}>Due: {new Date(item.due_date).toLocaleDateString()}</Text>
+                      <ThemedText style={s.inboxDue}>Due: {new Date(item.due_date).toLocaleDateString()}</ThemedText>
                     )}
                   </>
                 ) : (
                   <>
                     <View style={s.inboxTitleRow}>
                       <View style={[s.typeDot, { backgroundColor: colors.success }]} />
-                      <Text style={s.noteLabel}>Note</Text>
+                      <ThemedText style={s.noteLabel}>Note</ThemedText>
                     </View>
-                    <Text style={s.notePreview} numberOfLines={2}>{item.display_text}</Text>
+                    <ThemedText style={s.notePreview} numberOfLines={2}>{item.display_text}</ThemedText>
                   </>
                 )}
               </View>
-              <Text style={s.assignHint}>{item.type === 'task' ? 'Tap to assign' : 'Tap to view'}</Text>
+              <ThemedText style={s.assignHint}>{item.type === 'task' ? 'Tap to assign' : 'Tap to view'}</ThemedText>
             </TouchableOpacity>
           ))
         )}
       </View>
 
       <View style={s.groupsSection}>
-        <Text style={s.sectionTitle}>Groups</Text>
+        <ThemedText style={s.sectionTitle}>Groups</ThemedText>
       </View>
     </View>
   );
@@ -147,7 +150,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   return (
     <SafeAreaView style={s.container} edges={['top']}>
       <View style={s.topBar}>
-        <Text style={s.headerTitle}>Tasky</Text>
+        <ThemedText style={[s.headerTitle, { color: headerColor, fontSize: headerFontSize } ]}>Tasky</ThemedText>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Ionicons name="settings-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
@@ -207,7 +210,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 onPress={() => handleFabAction(btn.key)}
               >
                 <Ionicons name={btn.icon} size={20} color={colors.badgeText} />
-                <Text style={s.fabMenuLabel}>{btn.label}</Text>
+                <ThemedText style={s.fabMenuLabel}>{btn.label}</ThemedText>
               </TouchableOpacity>
             ))}
           </Animated.View>
@@ -230,7 +233,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
       <Modal visible={showCreateModal} transparent animationType="fade">
         <View style={s.modalOverlay}>
           <View style={s.modalContent}>
-            <Text style={s.modalTitle}>New Group</Text>
+            <ThemedText style={s.modalTitle}>New Group</ThemedText>
             <TextInput
               style={s.modalInput}
               placeholder="Group title"
@@ -240,10 +243,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
             />
             <View style={s.modalButtons}>
               <TouchableOpacity style={s.modalCancel} onPress={() => setShowCreateModal(false)}>
-                <Text style={s.modalCancelText}>Cancel</Text>
+                <ThemedText style={s.modalCancelText}>Cancel</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity style={s.modalSave} onPress={handleCreateGroup}>
-                <Text style={s.modalSaveText}>Create</Text>
+                <ThemedText style={s.modalSaveText}>Create</ThemedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -253,7 +256,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
       <Modal visible={!!editingGroup} transparent animationType="fade">
         <View style={s.modalOverlay}>
           <View style={s.modalContent}>
-            <Text style={s.modalTitle}>Rename Group</Text>
+            <ThemedText style={s.modalTitle}>Rename Group</ThemedText>
             <TextInput
               style={s.modalInput}
               placeholder="Group title"
@@ -263,10 +266,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
             />
             <View style={s.modalButtons}>
               <TouchableOpacity style={s.modalCancel} onPress={() => { setEditingGroup(null); setEditGroupTitle(''); }}>
-                <Text style={s.modalCancelText}>Cancel</Text>
+                <ThemedText style={s.modalCancelText}>Cancel</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity style={s.modalSave} onPress={handleEditGroup}>
-                <Text style={s.modalSaveText}>Save</Text>
+                <ThemedText style={s.modalSaveText}>Save</ThemedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -278,12 +281,12 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
         <Modal visible transparent animationType="fade">
           <View style={s.modalOverlay}>
             <View style={s.modalContent}>
-              <Text style={s.modalTitle}>Move to Group</Text>
+              <ThemedText style={s.modalTitle}>Move to Group</ThemedText>
               <TouchableOpacity
                 style={s.reassignOption}
                 onPress={() => handleReassign(assigningTaskId, null as any)}
               >
-                <Text style={s.reassignOptionText}>None (stay in Inbox)</Text>
+                <ThemedText style={s.reassignOptionText}>None (stay in Inbox)</ThemedText>
               </TouchableOpacity>
               {groups.map(group => (
                 <TouchableOpacity
@@ -291,14 +294,14 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                   style={s.reassignOption}
                   onPress={() => handleReassign(assigningTaskId, group.id)}
                 >
-                  <Text style={s.reassignOptionText}>{group.title}</Text>
+                  <ThemedText style={s.reassignOptionText}>{group.title}</ThemedText>
                 </TouchableOpacity>
               ))}
               <TouchableOpacity
                 style={[s.modalCancel, { marginTop: 12 }]}
                 onPress={() => setAssigningTaskId(null)}
               >
-                <Text style={s.modalCancelText}>Cancel</Text>
+                <ThemedText style={s.modalCancelText}>Cancel</ThemedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -334,9 +337,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: c.textPrimary,
+    fontFamily: c.headingFont,
   },
   searchInput: {
     marginHorizontal: 16,
@@ -360,6 +361,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: c.textPrimary,
+    fontFamily: c.headingFont,
   },
   sectionHeader: {
     flexDirection: 'row',

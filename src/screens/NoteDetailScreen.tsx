@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,7 +52,7 @@ export default function NoteDetailScreen({ route }: NoteDetailScreenProps) {
   if (!note) {
     return (
       <SafeAreaView style={s.container}>
-        <Text style={s.errorText}>Note not found</Text>
+        <ThemedText style={s.errorText}>Note not found</ThemedText>
       </SafeAreaView>
     );
   }
@@ -66,27 +67,27 @@ export default function NoteDetailScreen({ route }: NoteDetailScreenProps) {
         <View style={s.badgeRow}>
           <View style={s.badge}>
             <Ionicons name="document-text-outline" size={14} color={colors.success} />
-            <Text style={s.badgeText}>Note</Text>
+            <ThemedText style={s.badgeText}>Note</ThemedText>
           </View>
         </View>
 
         <View style={s.contentCard}>
-          <Text style={s.contentText}>{note.content}</Text>
+          <ThemedText style={s.contentText}>{note.content}</ThemedText>
         </View>
 
         <View style={s.metaGrid}>
           <View style={s.metaItem}>
             <Ionicons name="folder-outline" size={18} color={colors.textTertiary} />
             <View style={s.metaText}>
-              <Text style={s.metaLabel}>Group</Text>
-              <Text style={s.metaValue}>{groupTitle || 'Unassigned'}</Text>
+              <ThemedText style={s.metaLabel}>Group</ThemedText>
+              <ThemedText style={s.metaValue}>{groupTitle || 'Unassigned'}</ThemedText>
             </View>
           </View>
           <View style={s.metaItem}>
             <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
             <View style={s.metaText}>
-              <Text style={s.metaLabel}>Created</Text>
-              <Text style={s.metaValue}>{createdDateStr}</Text>
+              <ThemedText style={s.metaLabel}>Created</ThemedText>
+              <ThemedText style={s.metaValue}>{createdDateStr}</ThemedText>
             </View>
           </View>
         </View>

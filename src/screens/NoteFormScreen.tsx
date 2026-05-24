@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView
 } from 'react-native';
@@ -81,12 +82,12 @@ export default function NoteFormScreen({ navigation, route }: NoteFormScreenProp
         />
 
         <TouchableOpacity style={s.pickerButton} onPress={() => setShowGroupPicker(!showGroupPicker)}>
-          <Text style={[s.pickerButtonText, !selectedGroupId && s.placeholderText]}>
+          <ThemedText style={[s.pickerButtonText, !selectedGroupId && s.placeholderText]}>
             {selectedGroupId
               ? groups.find(g => g.id === selectedGroupId)?.title || 'Selected Group'
               : 'None (Unassigned)'}
-          </Text>
-          <Text style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</Text>
+          </ThemedText>
+          <ThemedText style={s.pickerArrow}>{showGroupPicker ? '▲' : '▼'}</ThemedText>
         </TouchableOpacity>
         {showGroupPicker && (
           <View style={s.pickerDropdown}>
@@ -94,9 +95,9 @@ export default function NoteFormScreen({ navigation, route }: NoteFormScreenProp
               style={s.pickerOption}
               onPress={() => { setSelectedGroupId(null); setShowGroupPicker(false); }}
             >
-              <Text style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
+              <ThemedText style={selectedGroupId === null ? s.pickerOptionActive : s.pickerOptionText}>
                 None (Unassigned)
-              </Text>
+              </ThemedText>
             </TouchableOpacity>
             {groups.map(g => (
               <TouchableOpacity
@@ -104,16 +105,16 @@ export default function NoteFormScreen({ navigation, route }: NoteFormScreenProp
                 style={s.pickerOption}
                 onPress={() => { setSelectedGroupId(g.id); setShowGroupPicker(false); }}
               >
-                <Text style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
+                <ThemedText style={selectedGroupId === g.id ? s.pickerOptionActive : s.pickerOptionText}>
                   {g.title}
-                </Text>
+                </ThemedText>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
         <TouchableOpacity style={s.saveButton} onPress={handleSave}>
-          <Text style={s.saveButtonText}>{isEditing ? 'Update Note' : 'Save Note'}</Text>
+          <ThemedText style={s.saveButtonText}>{isEditing ? 'Update Note' : 'Save Note'}</ThemedText>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -1,4 +1,5 @@
-import React, { useRef, useMemo } from 'react';
+﻿import React, { useRef, useMemo } from 'react';
+import { ThemedText } from '../components/ThemedText';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
@@ -69,11 +70,11 @@ export default function GroupCard({ group, onPress, onEdit, onDelete }: GroupCar
   const cardContent = (
     <TouchableOpacity style={s.card} onPress={() => { closeSlide(); onPress(group); }} activeOpacity={0.7}>
       <View style={s.header}>
-        <Text style={s.title} numberOfLines={2}>{group.title}</Text>
+        <ThemedText style={s.title} numberOfLines={2}>{group.title}</ThemedText>
       </View>
       {noDeadlines ? (
         <View style={s.statusRow}>
-          <Text style={[s.statusText, { color: statusColor }]}>{group.calculated_status}</Text>
+          <ThemedText style={[s.statusText, { color: statusColor }]}>{group.calculated_status}</ThemedText>
         </View>
       ) : (
         <>
@@ -81,9 +82,9 @@ export default function GroupCard({ group, onPress, onEdit, onDelete }: GroupCar
             <View style={[s.progressBarFill, { width: `${group.progress_percentage}%` }]} />
           </View>
           <View style={s.statusRow}>
-            <Text style={[s.statusText, { color: statusColor }]}>
+            <ThemedText style={[s.statusText, { color: statusColor }]}>
               {group.calculated_status} ({group.progress_percentage}%)
-            </Text>
+            </ThemedText>
           </View>
         </>
       )}
@@ -96,11 +97,11 @@ export default function GroupCard({ group, onPress, onEdit, onDelete }: GroupCar
         <Animated.View style={[s.actionsInner, { opacity: actionsOpacity }]}>
           <TouchableOpacity style={s.actionBtn} onPress={handleEdit}>
             <Ionicons name="pencil" size={18} color={colors.textOnColor} />
-            <Text style={s.actionLabel}>Edit</Text>
+            <ThemedText style={s.actionLabel}>Edit</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={[s.actionBtn, s.actionDelete]} onPress={handleDelete}>
             <Ionicons name="trash-outline" size={18} color={colors.textOnColor} />
-            <Text style={s.actionLabel}>Delete</Text>
+            <ThemedText style={s.actionLabel}>Delete</ThemedText>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -141,6 +142,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
     fontWeight: '600',
     color: c.textPrimary,
     flex: 1,
+    fontFamily: c.bodyFont,
   },
   progressBarBg: {
     height: 6,

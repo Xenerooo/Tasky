@@ -31,7 +31,8 @@
           "color": "#007AFF",
           "defaultChannel": "task-reminders"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {
