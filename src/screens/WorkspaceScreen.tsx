@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet, Alert
+  View, Text, FlatList, TouchableOpacity, StyleSheet
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
+import ConfirmModal from '../components/ConfirmModal';
 import type { InboxTask, NoteData } from '../hooks/useGroupedTasks';
 
 interface WorkspaceScreenProps {
@@ -25,9 +26,11 @@ interface WorkspaceItem {
 export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenProps) {
   const { groupId, groupTitle } = route.params;
   const { db } = useDatabase();
+  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<WorkspaceItem[]>([]);
   const [calculatedStatus, setCalculatedStatus] = useState('');
   const [progress, setProgress] = useState(0);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState<WorkspaceItem | null>(null);
 
   const handleView = (item: WorkspaceItem) => {
     if (item.type === 'task') {
@@ -56,23 +59,20 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
     }
   };
 
-  const handleDeleteItem = async (item: WorkspaceItem) => {
-    if (!db) return;
-    Alert.alert('Delete', `Delete "${item.display_text}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          const now = new Date().toISOString();
-          if (item.type === 'task') {
-            await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, item.id);
-          } else if (item.type === 'note') {
-            await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, item.id);
-          }
-          fetchWorkspace();
-        },
-      },
-    ]);
+  const handleDeleteItem = (item: WorkspaceItem) => {
+    setConfirmDeleteItem(item);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!db || !confirmDeleteItem) return;
+    const now = new Date().toISOString();
+    if (confirmDeleteItem.type === 'task') {
+      await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDeleteItem.id);
+    } else if (confirmDeleteItem.type === 'note') {
+      await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDeleteItem.id);
+    }
+    setConfirmDeleteItem(null);
+    fetchWorkspace();
   };
 
   const fetchWorkspace = useCallback(async () => {
@@ -164,7 +164,7 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
         showsVerticalScrollIndicator={false}
       />
 
-      <View style={styles.bottomDock}>
+      <View style={[styles.bottomDock, { paddingBottom: insets.bottom + 12 }]}>
         <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('TaskForm', { defaultGroupId: groupId })}>
           <Text style={styles.actionButtonText}>+ Add Task</Text>
         </TouchableOpacity>
@@ -173,6 +173,13 @@ export default function WorkspaceScreen({ navigation, route }: WorkspaceScreenPr
         </TouchableOpacity>
       </View>
 
+      <ConfirmModal
+        visible={!!confirmDeleteItem}
+        title="Delete"
+        message={confirmDeleteItem ? `Delete "${confirmDeleteItem.display_text}"?` : ''}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteItem(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -188,7 +195,7 @@ const styles = StyleSheet.create({
   listContent: { paddingVertical: 12, paddingBottom: 100 },
   bottomDock: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, paddingBottom: 28,
+    flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12,
     backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#e5e5ea', gap: 12,
   },
   actionButton: { flex: 1, backgroundColor: '#007AFF', borderRadius: 12, padding: 16, alignItems: 'center' },

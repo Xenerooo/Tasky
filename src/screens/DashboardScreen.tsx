@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Alert, Modal, Platform, Animated
+  View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, Animated
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useGroupedTasks, type GroupedTask, type InboxTask } from '../hooks/useGroupedTasks';
 import GroupCard from '../components/GroupCard';
 import TaskModal from '../components/TaskModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 interface DashboardScreenProps {
   navigation: any;
@@ -27,6 +28,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   const [editGroupTitle, setEditGroupTitle] = useState('');
   const [assigningTaskId, setAssigningTaskId] = useState<string | null>(null);
   const [editTask, setEditTask] = useState<InboxTask | null>(null);
+  const [confirmDeleteGroup, setConfirmDeleteGroup] = useState<GroupedTask | null>(null);
   const [showFabMenu, setShowFabMenu] = useState(false);
   const fabAnim = useRef(new Animated.Value(0)).current;
 
@@ -62,10 +64,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   };
 
   const handleDeleteGroup = (group: GroupedTask) => {
-    Alert.alert('Delete Group', `Delete "${group.title}" and all its tasks?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteGroup(group.id) },
-    ]);
+    setConfirmDeleteGroup(group);
   };
 
   const handleReassign = async (taskId: string, groupId: string) => {
@@ -300,6 +299,19 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           </View>
         </Modal>
       )}
+
+      <ConfirmModal
+        visible={!!confirmDeleteGroup}
+        title="Delete Group"
+        message={confirmDeleteGroup ? `Delete "${confirmDeleteGroup.title}" and all its tasks?` : ''}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (confirmDeleteGroup) deleteGroup(confirmDeleteGroup.id);
+          setConfirmDeleteGroup(null);
+        }}
+        onCancel={() => setConfirmDeleteGroup(null)}
+      />
     </SafeAreaView>
   );
 }

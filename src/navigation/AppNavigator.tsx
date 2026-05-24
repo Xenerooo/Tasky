@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/DashboardScreen';
+import CalendarScreen from '../screens/CalendarScreen';
 import TimelineScreen from '../screens/TimelineScreen';
 import WorkspaceScreen from '../screens/WorkspaceScreen';
 import TaskDetailScreen from '../screens/TaskDetailScreen';
@@ -38,11 +39,20 @@ function MainTabs() {
       }}
     >
       <Tab.Screen
-        name="Dashboard"
+        name="Home"
         component={DashboardScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />

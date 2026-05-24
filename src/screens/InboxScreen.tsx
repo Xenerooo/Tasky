@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
+import ConfirmModal from '../components/ConfirmModal';
 
 interface InboxScreenProps {
   navigation: any;
@@ -19,7 +20,9 @@ interface InboxItem {
 
 export default function InboxScreen({ navigation }: InboxScreenProps) {
   const { db } = useDatabase();
+  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<InboxItem[]>([]);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState<InboxItem | null>(null);
 
   const fetchInbox = useCallback(async () => {
     if (!db) return;
@@ -72,23 +75,20 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
     }
   };
 
-  const handleDelete = async (item: InboxItem) => {
-    if (!db) return;
-    Alert.alert('Delete', `Delete "${item.display_text}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          const now = new Date().toISOString();
-          if (item.type === 'task') {
-            await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, item.id);
-          } else {
-            await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, item.id);
-          }
-          fetchInbox();
-        },
-      },
-    ]);
+  const handleDelete = (item: InboxItem) => {
+    setConfirmDeleteItem(item);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!db || !confirmDeleteItem) return;
+    const now = new Date().toISOString();
+    if (confirmDeleteItem.type === 'task') {
+      await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDeleteItem.id);
+    } else {
+      await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDeleteItem.id);
+    }
+    setConfirmDeleteItem(null);
+    fetchInbox();
   };
 
   const renderHeader = () => (
@@ -126,7 +126,7 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
         showsVerticalScrollIndicator={false}
       />
 
-      <View style={styles.bottomDock}>
+      <View style={[styles.bottomDock, { paddingBottom: insets.bottom + 12 }]}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('TaskForm', {})}>
           <Text style={styles.actionBtnText}>+ Add Task</Text>
         </TouchableOpacity>
@@ -134,6 +134,14 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
           <Text style={styles.actionBtnText}>+ Add Note</Text>
         </TouchableOpacity>
       </View>
+
+      <ConfirmModal
+        visible={!!confirmDeleteItem}
+        title="Delete"
+        message={confirmDeleteItem ? `Delete "${confirmDeleteItem.display_text}"?` : ''}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteItem(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -146,7 +154,7 @@ const styles = StyleSheet.create({
   emptyText: { textAlign: 'center', marginTop: 40, fontSize: 15, color: '#8E8E93', fontStyle: 'italic' },
   bottomDock: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, paddingBottom: 28,
+    flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12,
     backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#e5e5ea', gap: 12,
   },
   actionBtn: { flex: 1, backgroundColor: '#007AFF', borderRadius: 12, padding: 16, alignItems: 'center' },
