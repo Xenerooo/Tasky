@@ -5,8 +5,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useDatabase } from '../hooks/useDatabase';
+import { useSettings } from '../hooks/useSettings';
 import DatePickerModal from '../components/DatePickerModal';
 import type { GroupedTask, InboxTask } from '../hooks/useGroupedTasks';
+import { scheduleForTask, cancelForTask } from '../services/notifications';
 
 interface TaskFormScreenProps {
   navigation: any;
@@ -23,6 +25,7 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
   const editTask = route.params?.editTask ?? null;
   const defaultGroupId = route.params?.defaultGroupId ?? null;
   const { db } = useDatabase();
+  const { settings } = useSettings();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -60,10 +63,20 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
     const now = new Date().toISOString();
     const due = dueDate.trim() ? new Date(dueDate.trim()).toISOString() : null;
     if (editTask) {
-      await db.runAsync(
-        'UPDATE tasks SET title = ?, description = ?, due_date = ?, status = ?, updated_at = ? WHERE id = ?',
-        title.trim(), description.trim() || null, due, status, now, editTask.id
+      const existing = await db.getFirstAsync<{ notification_ids: string | null }>(
+        'SELECT notification_ids FROM tasks WHERE id = ?', editTask.id
       );
+      if (existing?.notification_ids) {
+        await cancelForTask(JSON.parse(existing.notification_ids));
+      }
+      await db.runAsync(
+        'UPDATE tasks SET title = ?, description = ?, due_date = ?, status = ?, updated_at = ?, notification_ids = ? WHERE id = ?',
+        title.trim(), description.trim() || null, due, status, now, null, editTask.id
+      );
+      if (due && status === 'ongoing' && settings.notificationsEnabled) {
+        const ids = await scheduleForTask(editTask.id, title.trim(), dueDate.trim(), settings.reminderDays, settings.highPriority);
+        await db.runAsync('UPDATE tasks SET notification_ids = ? WHERE id = ?', JSON.stringify(ids), editTask.id);
+      }
     } else {
       const { randomUUID } = await import('expo-crypto');
       const id = randomUUID();
@@ -71,6 +84,10 @@ export default function TaskFormScreen({ navigation, route }: TaskFormScreenProp
         'INSERT INTO tasks (id, grouped_task_id, title, description, due_date, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         id, selectedGroupId, title.trim(), description.trim() || null, due, status, now, now
       );
+      if (due && settings.notificationsEnabled) {
+        const ids = await scheduleForTask(id, title.trim(), dueDate.trim(), settings.reminderDays, settings.highPriority);
+        await db.runAsync('UPDATE tasks SET notification_ids = ? WHERE id = ?', JSON.stringify(ids), id);
+      }
     }
     navigation.goBack();
   };

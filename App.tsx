@@ -1,13 +1,53 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DatabaseProvider, useDatabase } from './src/hooks/useDatabase';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
+import { initializeNotifications, updateNotificationChannel } from './src/services/notifications';
+import { useSettings } from './src/hooks/useSettings';
+import * as Notifications from 'expo-notifications';
 
 function AppContent() {
   const { loading } = useDatabase();
+  const { settings, loaded: settingsLoaded } = useSettings();
+  const navigationRef = useRef<NavigationContainerRef<any>>(null);
+
+  useEffect(() => {
+    initializeNotifications();
+  }, []);
+
+  useEffect(() => {
+    if (settingsLoaded) {
+      updateNotificationChannel(settings);
+    }
+  }, [settings, settingsLoaded]);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const taskId = response.notification.request.content.data?.taskId;
+      if (typeof taskId === 'string' && navigationRef.current) {
+        navigationRef.current.navigate('TaskDetail', { taskId });
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      Notifications.getLastNotificationResponseAsync().then(response => {
+        if (response?.notification.request.content.data?.taskId) {
+          const taskId = response.notification.request.content.data.taskId as string;
+          setTimeout(() => {
+            if (navigationRef.current) {
+              navigationRef.current.navigate('TaskDetail', { taskId });
+            }
+          }, 500);
+        }
+      });
+    }
+  }, [loading]);
 
   if (loading) {
     return (
@@ -20,7 +60,7 @@ function AppContent() {
 
   return (
     <>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <AppNavigator />
       </NavigationContainer>
       <StatusBar style="auto" />

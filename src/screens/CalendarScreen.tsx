@@ -7,6 +7,7 @@ import { useCalendar } from '../hooks/useCalendar';
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
+import { cancelForTask } from '../services/notifications';
 
 interface CalendarScreenProps {
   navigation: any;
@@ -88,7 +89,11 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
     if (confirmDelete.event_type === 'note_created') {
       await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDelete.item_id);
     } else {
-      await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDelete.item_id);
+      const task = await db.getFirstAsync<{ notification_ids: string | null }>(
+        'SELECT notification_ids FROM tasks WHERE id = ?', confirmDelete.item_id
+      );
+      if (task?.notification_ids) await cancelForTask(JSON.parse(task.notification_ids));
+      await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ?, notification_ids = ? WHERE id = ?', now, null, confirmDelete.item_id);
     }
     setConfirmDelete(null);
     refresh();

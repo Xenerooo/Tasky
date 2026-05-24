@@ -146,6 +146,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.topBar}>
         <Text style={styles.headerTitle}>Tasky</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Ionicons name="settings-outline" size={24} color="#007AFF" />
+        </TouchableOpacity>
       </View>
 
       <TextInput
@@ -324,6 +327,9 @@ const styles = StyleSheet.create({
   topBar: {
     paddingHorizontal: 16,
     paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 28,

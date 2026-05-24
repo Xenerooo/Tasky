@@ -11,6 +11,7 @@ import TaskFormScreen from '../screens/TaskFormScreen';
 import NoteFormScreen from '../screens/NoteFormScreen';
 import InboxScreen from '../screens/InboxScreen';
 import NoteDetailScreen from '../screens/NoteDetailScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 type RootStackParamList = {
   MainTabs: undefined;
@@ -20,6 +21,7 @@ type RootStackParamList = {
   NoteForm: { editNote?: any; defaultGroupId?: string | null } | undefined;
   NoteDetail: { noteId: string };
   Inbox: undefined;
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -109,6 +111,11 @@ export default function AppNavigator() {
         name="Inbox"
         component={InboxScreen}
         options={{ title: 'Inbox' }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: 'Settings' }}
       />
     </Stack.Navigator>
   );

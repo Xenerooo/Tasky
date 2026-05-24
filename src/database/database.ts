@@ -58,4 +58,10 @@ async function initializeDatabase(database: SQLite.SQLiteDatabase): Promise<void
       SELECT id AS item_id, grouped_task_id AS group_id, SUBSTR(content, 1, 80) AS display_text, 'note_created' AS event_type, created_at AS event_date
       FROM notes WHERE is_deleted = 0;
   `);
+
+  try {
+    await database.execAsync('ALTER TABLE tasks ADD COLUMN notification_ids TEXT');
+  } catch {
+    // column already exists
+  }
 }

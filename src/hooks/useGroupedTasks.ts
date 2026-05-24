@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { useDatabase } from './useDatabase';
+import { cancelForTask } from '../services/notifications';
 
 export interface GroupedTask {
   id: string;
@@ -121,7 +122,13 @@ export function useGroupedTasks() {
   const deleteTask = useCallback(async (taskId: string) => {
     if (!db) return;
     const now = new Date().toISOString();
-    await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, taskId);
+    const task = await db.getFirstAsync<{ notification_ids: string | null }>(
+      'SELECT notification_ids FROM tasks WHERE id = ?', taskId
+    );
+    if (task?.notification_ids) {
+      await cancelForTask(JSON.parse(task.notification_ids));
+    }
+    await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ?, notification_ids = ? WHERE id = ?', now, null, taskId);
     fetchInboxItems(db);
     fetchGroups(db, search);
   }, [db, search, fetchInboxItems, fetchGroups]);
@@ -146,8 +153,14 @@ export function useGroupedTasks() {
   const deleteGroup = useCallback(async (groupId: string) => {
     if (!db) return;
     const now = new Date().toISOString();
+    const tasks = await db.getAllAsync<{ notification_ids: string | null }>(
+      'SELECT notification_ids FROM tasks WHERE grouped_task_id = ? AND is_deleted = 0', groupId
+    );
+    for (const t of tasks) {
+      if (t.notification_ids) await cancelForTask(JSON.parse(t.notification_ids));
+    }
     await db.runAsync('UPDATE grouped_tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, groupId);
-    await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE grouped_task_id = ?', now, groupId);
+    await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ?, notification_ids = ? WHERE grouped_task_id = ?', now, null, groupId);
     await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE grouped_task_id = ?', now, groupId);
     fetchGroups(db, search);
     fetchInboxItems(db);

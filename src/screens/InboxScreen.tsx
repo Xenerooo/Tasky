@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
+import { cancelForTask } from '../services/notifications';
 
 interface InboxScreenProps {
   navigation: any;
@@ -112,7 +113,11 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
     if (!db || !confirmDeleteItem) return;
     const now = new Date().toISOString();
     if (confirmDeleteItem.type === 'task') {
-      await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDeleteItem.id);
+      const task = await db.getFirstAsync<{ notification_ids: string | null }>(
+        'SELECT notification_ids FROM tasks WHERE id = ?', confirmDeleteItem.id
+      );
+      if (task?.notification_ids) await cancelForTask(JSON.parse(task.notification_ids));
+      await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ?, notification_ids = ? WHERE id = ?', now, null, confirmDeleteItem.id);
     } else {
       await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, confirmDeleteItem.id);
     }
