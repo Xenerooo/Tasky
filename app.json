@@ -32,7 +32,8 @@
           "defaultChannel": "task-reminders"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {
