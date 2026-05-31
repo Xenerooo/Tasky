@@ -2,6 +2,7 @@
   "expo": {
     "name": "Tasky",
     "slug": "my-offline-app",
+    "scheme": "tasky",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -44,7 +45,106 @@
           }
         }
       ],
-      "@react-native-vector-icons/ionicons"
+      "@react-native-vector-icons/ionicons",
+      [
+        "react-native-android-widget/app.plugin",
+        {
+          "widgets": [
+            {
+              "name": "TaskOverview",
+              "label": "Task Overview",
+              "description": "Today's tasks at a glance",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "InboxTray",
+              "label": "Inbox",
+              "description": "Recent ungrouped tasks",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "CalendarSnapshot",
+              "label": "Calendar",
+              "description": "Today's events",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "QuickCapture",
+              "label": "Quick Capture",
+              "description": "Quickly add task or note",
+              "minWidth": "150dp",
+              "minHeight": "80dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 0
+            },
+            {
+              "name": "GroupProgress",
+              "label": "Group Progress",
+              "description": "Group task progress",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "TaskOverview",
+              "displayName": "Task Overview",
+              "description": "Today's tasks at a glance",
+              "android": null,
+              "supportedFamilies": ["systemSmall", "systemMedium"]
+            },
+            {
+              "name": "InboxTray",
+              "displayName": "Inbox",
+              "description": "Recent ungrouped tasks",
+              "android": null,
+              "supportedFamilies": ["systemSmall", "systemMedium"]
+            },
+            {
+              "name": "CalendarSnapshot",
+              "displayName": "Calendar",
+              "description": "Today's events",
+              "android": null,
+              "supportedFamilies": ["systemSmall"]
+            },
+            {
+              "name": "QuickCapture",
+              "displayName": "Quick Capture",
+              "description": "Quickly add task or note",
+              "android": null,
+              "supportedFamilies": ["systemSmall"]
+            },
+            {
+              "name": "GroupProgress",
+              "displayName": "Group Progress",
+              "description": "Group task progress",
+              "android": null,
+              "supportedFamilies": ["systemSmall", "systemMedium"]
+            }
+          ]
+        }
+      ]
     ],
     "extra": {
       "eas": {

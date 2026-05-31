@@ -11,6 +11,7 @@ import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface InboxScreenProps {
   navigation: any;
+  route: { params?: { filter?: 'due-today' | 'overdue' | 'upcoming' } };
 }
 
 interface InboxItem {
@@ -22,10 +23,11 @@ interface InboxItem {
   due_date?: string | null;
 }
 
-export default function InboxScreen({ navigation }: InboxScreenProps) {
+export default function InboxScreen({ navigation, route }: InboxScreenProps) {
   const { colors } = useTheme();
   const s = useMemo(() => styles(colors), [colors]);
   const { db } = useDatabase();
+  const filter = route.params?.filter;
   const ACTION_BUTTONS = [
     { key: 'task' as const, icon: 'checkbox-outline' as const, label: 'Task', color: colors.primary },
     { key: 'note' as const, icon: 'document-text-outline' as const, label: 'Note', color: colors.success },
@@ -59,12 +61,36 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
 
   const fetchInbox = useCallback(async () => {
     if (!db) return;
+
+    let tasksSql = "SELECT id, title, status, due_date, created_at FROM tasks WHERE grouped_task_id IS NULL AND is_deleted = 0";
+    let notesSql = "SELECT id, content, created_at FROM notes WHERE grouped_task_id IS NULL AND is_deleted = 0";
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const todayStr = now.toISOString();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString();
+    const nextWeek = new Date(now);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    const nextWeekStr = nextWeek.toISOString();
+
+    if (filter === 'due-today') {
+      tasksSql += ` AND due_date >= '${todayStr}' AND due_date < '${tomorrowStr}'`;
+    } else if (filter === 'overdue') {
+      tasksSql += ` AND due_date < '${todayStr}' AND status = 'ongoing'`;
+    } else if (filter === 'upcoming') {
+      tasksSql += ` AND due_date >= '${tomorrowStr}' AND due_date < '${nextWeekStr}' AND status = 'ongoing'`;
+    }
+
+    tasksSql += " ORDER BY created_at DESC";
+    notesSql += " ORDER BY created_at DESC";
+
     const [tasks, notes] = await Promise.all([
       db.getAllAsync<{ id: string; title: string; status: string; due_date: string | null; created_at: string }>(
-        "SELECT id, title, status, due_date, created_at FROM tasks WHERE grouped_task_id IS NULL AND is_deleted = 0 ORDER BY created_at DESC"
+        tasksSql
       ),
       db.getAllAsync<{ id: string; content: string; created_at: string }>(
-        "SELECT id, content, created_at FROM notes WHERE grouped_task_id IS NULL AND is_deleted = 0 ORDER BY created_at DESC"
+        notesSql
       ),
     ]);
     const feed: InboxItem[] = [];
@@ -76,7 +102,7 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
     }
     feed.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
     setItems(feed);
-  }, [db]);
+  }, [db, filter]);
 
   useEffect(() => {
     const unsub = navigation.addListener('focus', fetchInbox);
@@ -128,10 +154,12 @@ export default function InboxScreen({ navigation }: InboxScreenProps) {
     fetchInbox();
   };
 
+  const filterLabel = filter === 'due-today' ? 'Due Today' : filter === 'overdue' ? 'Overdue' : filter === 'upcoming' ? 'Upcoming' : null;
+
   const renderHeader = () => (
     <View style={s.headerBar}>
       <ThemedText style={s.sectionTitle}>
-        {items.length > 0 ? `${items.length} item${items.length > 1 ? 's' : ''}` : ''}
+        {filterLabel ? `${filterLabel} — ` : ''}{items.length > 0 ? `${items.length} item${items.length > 1 ? 's' : ''}` : ''}
       </ThemedText>
     </View>
   );

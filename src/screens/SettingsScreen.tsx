@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from 'react';
+﻿import React, { useMemo, useState, useEffect } from 'react';
 import { ThemedText } from '../components/ThemedText';
 import { Alert, View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useDatabase } from '../hooks/useDatabase';
 import { useTheme } from '../theme/ThemeContext';
 import { updateNotificationChannel, cancelForTask, cancelAll, scheduleForTask } from '../services/notifications';
+import { updateAllWidgets } from '../widgets/WidgetUpdater';
 
 const THEMES = [
   { key: 'light' as const, icon: 'sunny-outline' as const, label: 'Light' },
@@ -24,6 +25,14 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
   const { db } = useDatabase();
   const { colors } = useTheme();
   const s = useMemo(() => styles(colors), [colors]);
+  const [groups, setGroups] = useState<Array<{ id: string; title: string }>>([]);
+
+  useEffect(() => {
+    if (!db) return;
+    db.getAllAsync<{ id: string; title: string }>(
+      "SELECT id, title FROM grouped_tasks WHERE is_deleted = 0 ORDER BY created_at DESC"
+    ).then(setGroups);
+  }, [db]);
 
   const rescheduleAll = async (newSettings: typeof settings) => {
     if (!db || !newSettings.notificationsEnabled) return;
@@ -118,6 +127,46 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
               );
             })}
           </View>
+        </View>
+
+        <View style={s.section}>
+          <ThemedText style={s.sectionTitle}>WIDGET</ThemedText>
+          <View style={s.row}>
+            <View style={s.rowLeft}>
+              <Ionicons name="layers-outline" size={22} color={colors.accent} />
+              <ThemedText style={s.rowLabel}>Widget Group</ThemedText>
+            </View>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.groupPickerScroll}>
+            <TouchableOpacity
+              style={[s.groupChip, !settings.widgetGroupId && s.groupChipActive]}
+              onPress={() => {
+                updateSettings({ widgetGroupId: null });
+                if (db) updateAllWidgets(db, null);
+              }}
+            >
+              <ThemedText style={[s.groupChipLabel, !settings.widgetGroupId && s.groupChipLabelActive]}>
+                None
+              </ThemedText>
+            </TouchableOpacity>
+            {groups.map(g => {
+              const isActive = settings.widgetGroupId === g.id;
+              return (
+                <TouchableOpacity
+                  key={g.id}
+                  style={[s.groupChip, isActive && s.groupChipActive]}
+                  onPress={() => {
+                    updateSettings({ widgetGroupId: g.id });
+                    if (db) updateAllWidgets(db, g.id);
+                  }}
+                >
+                  <ThemedText style={[s.groupChipLabel, isActive && s.groupChipLabelActive]}>
+                    {g.title}
+                  </ThemedText>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
 
         <View style={s.section}>
@@ -236,4 +285,12 @@ const styles = (c: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   themeBtnActive: { backgroundColor: c.primary },
   themeBtnLabel: { fontSize: 15, fontWeight: '600', color: c.textTertiary },
   themeBtnLabelActive: { color: c.textOnColor },
+  groupPickerScroll: { marginTop: 4 },
+  groupChip: {
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+    backgroundColor: c.surface, marginRight: 8, borderWidth: 1, borderColor: c.border,
+  },
+  groupChipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  groupChipLabel: { fontSize: 14, color: c.textPrimary },
+  groupChipLabelActive: { color: c.textOnColor },
 });

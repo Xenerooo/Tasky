@@ -21,7 +21,7 @@ type RootStackParamList = {
   TaskForm: { editTask?: any; defaultGroupId?: string | null } | undefined;
   NoteForm: { editNote?: any; defaultGroupId?: string | null } | undefined;
   NoteDetail: { noteId: string };
-  Inbox: undefined;
+  Inbox: { filter?: 'due-today' | 'overdue' | 'upcoming' } | undefined;
   Settings: undefined;
 };
 

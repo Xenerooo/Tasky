@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { useDatabase } from './useDatabase';
+import { useSettings } from './useSettings';
 import { cancelForTask } from '../services/notifications';
+import { updateAllWidgets } from '../widgets/WidgetUpdater';
 
 export interface GroupedTask {
   id: string;
@@ -38,6 +40,7 @@ export interface InboxItem {
 
 export function useGroupedTasks() {
   const { db } = useDatabase();
+  const { settings } = useSettings();
   const [groups, setGroups] = useState<GroupedTask[]>([]);
   const [inboxItems, setInboxItems] = useState<InboxItem[]>([]);
   const [search, setSearch] = useState('');
@@ -96,6 +99,12 @@ export function useGroupedTasks() {
     fetchInboxItems(db);
   }, [db, search, fetchGroups, fetchInboxItems]);
 
+  const refreshWidgets = useCallback(() => {
+    if (db) {
+      updateAllWidgets(db, settings.widgetGroupId);
+    }
+  }, [db, settings.widgetGroupId]);
+
   const reassignTaskToGroup = useCallback(async (taskId: string, groupId: string | null) => {
     if (!db) return;
     const now = new Date().toISOString();
@@ -105,7 +114,8 @@ export function useGroupedTasks() {
     );
     fetchInboxItems(db);
     fetchGroups(db, search);
-  }, [db, search, fetchInboxItems, fetchGroups]);
+    refreshWidgets();
+  }, [db, search, fetchInboxItems, fetchGroups, refreshWidgets]);
 
   const createGroup = useCallback(async (title: string) => {
     if (!db) return;
@@ -117,7 +127,8 @@ export function useGroupedTasks() {
       id, title, now, now
     );
     fetchGroups(db, search);
-  }, [db, search, fetchGroups]);
+    refreshWidgets();
+  }, [db, search, fetchGroups, refreshWidgets]);
 
   const deleteTask = useCallback(async (taskId: string) => {
     if (!db) return;
@@ -131,14 +142,16 @@ export function useGroupedTasks() {
     await db.runAsync('UPDATE tasks SET is_deleted = 1, updated_at = ?, notification_ids = ? WHERE id = ?', now, null, taskId);
     fetchInboxItems(db);
     fetchGroups(db, search);
-  }, [db, search, fetchInboxItems, fetchGroups]);
+    refreshWidgets();
+  }, [db, search, fetchInboxItems, fetchGroups, refreshWidgets]);
 
   const deleteNote = useCallback(async (noteId: string) => {
     if (!db) return;
     const now = new Date().toISOString();
     await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE id = ?', now, noteId);
     fetchInboxItems(db);
-  }, [db, fetchInboxItems]);
+    refreshWidgets();
+  }, [db, fetchInboxItems, refreshWidgets]);
 
   const renameGroup = useCallback(async (groupId: string, newTitle: string) => {
     if (!db) return;
@@ -148,7 +161,8 @@ export function useGroupedTasks() {
       newTitle, now, groupId
     );
     fetchGroups(db, search);
-  }, [db, search, fetchGroups]);
+    refreshWidgets();
+  }, [db, search, fetchGroups, refreshWidgets]);
 
   const deleteGroup = useCallback(async (groupId: string) => {
     if (!db) return;
@@ -164,13 +178,15 @@ export function useGroupedTasks() {
     await db.runAsync('UPDATE notes SET is_deleted = 1, updated_at = ? WHERE grouped_task_id = ?', now, groupId);
     fetchGroups(db, search);
     fetchInboxItems(db);
-  }, [db, search, fetchGroups, fetchInboxItems]);
+    refreshWidgets();
+  }, [db, search, fetchGroups, fetchInboxItems, refreshWidgets]);
 
   const refresh = useCallback(() => {
     if (!db) return;
     fetchGroups(db, search);
     fetchInboxItems(db);
-  }, [db, search, fetchGroups, fetchInboxItems]);
+    refreshWidgets();
+  }, [db, search, fetchGroups, fetchInboxItems, refreshWidgets]);
 
   return { groups, inboxItems, search, setSearch, reassignTaskToGroup, createGroup, deleteTask, deleteNote, renameGroup, deleteGroup, refresh };
 }

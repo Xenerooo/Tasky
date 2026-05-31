@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   vibrate: true,
   highPriority: true,
   theme: 'light',
+  widgetGroupId: null,
 };
 
 export interface AppSettings {
@@ -17,6 +18,7 @@ export interface AppSettings {
   vibrate: boolean;
   highPriority: boolean;
   theme: 'light' | 'dark' | 'nika';
+  widgetGroupId: string | null;
 }
 
 interface SettingsContextValue {
