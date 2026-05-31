@@ -2,7 +2,7 @@
 import { ThemedText } from '../components/ThemedText';
 import { Alert, View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import * as Notifications from 'expo-notifications';
 import { useSettings } from '../hooks/useSettings';
 import { useDatabase } from '../hooks/useDatabase';

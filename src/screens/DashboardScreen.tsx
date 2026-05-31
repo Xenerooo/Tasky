@@ -1,15 +1,20 @@
-﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ThemedText } from '../components/ThemedText';
+﻿import Ionicons from "@react-native-vector-icons/ionicons";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Platform, Animated
+  Animated,
+  FlatList,
+  Modal,
+  StyleSheet,
+  TextInput, TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
-import { useGroupedTasks, type GroupedTask, type InboxTask } from '../hooks/useGroupedTasks';
+import ConfirmModal from '../components/ConfirmModal';
 import GroupCard from '../components/GroupCard';
 import TaskModal from '../components/TaskModal';
-import ConfirmModal from '../components/ConfirmModal';
+import { ThemedText } from '../components/ThemedText';
+import { useGroupedTasks, type GroupedTask, type InboxTask } from '../hooks/useGroupedTasks';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 
 interface DashboardScreenProps {
@@ -440,7 +445,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
     paddingBottom: 4,
   },
   fabOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'transparent',
     zIndex: 8,
   },

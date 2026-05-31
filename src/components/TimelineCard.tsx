@@ -1,7 +1,7 @@
 ﻿import React, { useRef, useMemo } from 'react';
 import { ThemedText } from '../components/ThemedText';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import type { TimelineEvent } from '../hooks/useTimeline';
 
@@ -46,7 +46,8 @@ function isWithinDays(dueDate: string | null | undefined, days: number): boolean
 export default function TimelineCard({ event, groupTitle, status, dueDate, showTimelineBar = false, onView, onEdit, onDelete }: TimelineCardProps) {
   const { colors } = useTheme();
   const s = useMemo(() => styles(colors), [colors]);
-  const eventConfig: Record<string, { icon: keyof typeof Ionicons.glyphMap; label: string; color: string }> = {
+  type IconName = React.ComponentProps<typeof Ionicons>['name'];
+  const eventConfig: Record<string, { icon: IconName; label: string; color: string }> = {
     task_created: { icon: 'checkbox-outline', label: 'Task', color: colors.primary },
     task_due: { icon: 'alarm', label: 'Deadline', color: colors.danger },
     note_created: { icon: 'document-text-outline', label: 'Note', color: colors.success },

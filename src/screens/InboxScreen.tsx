@@ -2,7 +2,7 @@
 import { ThemedText } from '../components/ThemedText';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
@@ -200,7 +200,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
   headerBar: { paddingHorizontal: 20, paddingBottom: 8 },
   sectionTitle: { fontSize: 14, color: c.textTertiary, fontWeight: '600', fontFamily: c.headingFont },
   emptyText: { textAlign: 'center', marginTop: 40, fontSize: 15, color: c.textTertiary, fontStyle: 'italic' },
-  fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },
+  fabOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'transparent', zIndex: 8 },
   fabContainer: { position: 'absolute', right: 16, alignItems: 'flex-end', zIndex: 9 },
   fabMenu: { marginBottom: 12, gap: 10 },
   fabMenuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, gap: 8 },

@@ -3,7 +3,7 @@ import { ThemedText } from '../components/ThemedText';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useFocusEffect } from '@react-navigation/native';
 import { useCalendar } from '../hooks/useCalendar';
 import { useDatabase } from '../hooks/useDatabase';

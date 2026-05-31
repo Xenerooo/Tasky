@@ -2,7 +2,7 @@
 import { ThemedText } from '../components/ThemedText';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useDatabase } from '../hooks/useDatabase';
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import type { NoteData } from '../hooks/useGroupedTasks';

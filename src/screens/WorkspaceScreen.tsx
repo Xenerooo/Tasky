@@ -4,7 +4,7 @@ import {
   View, Text, FlatList, TouchableOpacity, StyleSheet, Animated
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useDatabase } from '../hooks/useDatabase';
 import TimelineCard from '../components/TimelineCard';
 import ConfirmModal from '../components/ConfirmModal';
@@ -246,7 +246,7 @@ const styles = (c: ThemeColors) => StyleSheet.create({
   title: { fontSize: 22, fontWeight: '700', color: c.textPrimary, marginBottom: 4, fontFamily: c.headingFont },
   statusText: { fontSize: 14, color: c.textTertiary, fontWeight: '500' },
   listContent: { paddingVertical: 12, paddingBottom: 100 },
-  fabOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 8 },
+  fabOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'transparent', zIndex: 8 },
   fabContainer: { position: 'absolute', right: 16, alignItems: 'flex-end', zIndex: 9 },
   fabMenu: { marginBottom: 12, gap: 10 },
   fabMenuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, gap: 8 },

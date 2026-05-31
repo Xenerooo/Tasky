@@ -3,7 +3,7 @@ import { ThemedText } from '../components/ThemedText';
 import {
   Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useDatabase } from '../hooks/useDatabase';
 import { useSettings } from '../hooks/useSettings';
 import DatePickerModal from './DatePickerModal';

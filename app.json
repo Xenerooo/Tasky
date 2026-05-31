@@ -25,6 +25,7 @@
     "plugins": [
       "expo-sqlite",
       "expo-font",
+      "expo-asset",
       [
         "expo-notifications",
         {
@@ -32,8 +33,18 @@
           "defaultChannel": "task-reminders"
         }
       ],
-      "expo-asset",
-      "expo-status-bar"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": true
+          },
+          "ios": {
+            "newArchEnabled": true
+          }
+        }
+      ],
+      "@react-native-vector-icons/ionicons"
     ],
     "extra": {
       "eas": {

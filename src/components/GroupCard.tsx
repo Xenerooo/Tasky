@@ -1,7 +1,7 @@
 ﻿import React, { useRef, useMemo } from 'react';
 import { ThemedText } from '../components/ThemedText';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useTheme, type ThemeColors } from '../theme/ThemeContext';
 import type { GroupedTask } from '../hooks/useGroupedTasks';
 
